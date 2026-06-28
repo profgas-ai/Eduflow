@@ -1,247 +1,103 @@
-# EduFlow - Smart Course Management System
+# EduFlow
 
-Aplikasi manajemen mata kuliah modern untuk mahasiswa. Dirancang untuk membantu mengelola jadwal kuliah, tugas, presensi, catatan, dan progress akademik dalam satu platform yang clean, minimalis, dan responsif.
+Manajemen mata kuliah, tugas, presensi, jadwal, dan catatan — PWA berbasis Supabase.
 
 ## Fitur
 
-- **Dashboard Informatif** — Real-time clock, greeting dinamis, academic momentum, grafik produktivitas, jadwal hari ini, tugas terdekat
-- **Mata Kuliah** — CRUD lengkap dengan data detail (dosen, ruangan, jadwal, link LMS/Meet/WA, progress pertemuan)
-- **Tugas** — CRUD lengkap dengan prioritas, kategori, progress, filter, sorting, search, checklist
-- **Presensi** — Tracking kehadiran per mata kuliah, persentase otomatis, grafik, warning minimum 75%
-- **Kalender Akademik** — Tampilan bulanan, deadline, quiz, UTS/UAS, libur, event kampus, klik tanggal untuk detail
-- **Catatan** — Markdown, pinned notes, filter per mata kuliah, search, tags
-- **Pengaturan** — Profil, tema (Light/Dark/System), export/import data, upload avatar
-- **Autentikasi** — Login, Register, Forgot Password, Remember Me (Supabase Auth ready)
-- **PWA Ready** — Installable, offline mode, splash screen
-- **Global Search** — Cari tugas, mata kuliah, catatan, jadwal
-- **Filter & Sorting** — Filter berdasarkan semester, prioritas, status, kategori
-- **Export/Import** — Backup & restore data JSON
-- **Dark Mode** — Light, Dark, System (preferensi tersimpan)
-- **Responsive** — Desktop, Laptop, Tablet, Android, iPhone
-- **Accessibility** — Keyboard navigation, ARIA labels, focus indicator, high contrast
+- **Auth Multi-User** — Register/login via Supabase, data terisolasi per user
+- **Dashboard** — Greeting dinamis, jam realtime, quick stats, grafik (Chart.js), jadwal hari ini, tugas terdekat
+- **Mata Kuliah** — CRUD lengkap (dosen, ruang, jadwal, link LMS/Meet/WA, SKS, semester)
+- **Tugas** — Filter, sorting, search, prioritas, status, tenggat
+- **Presensi** — Catat kehadiran per pertemuan, ubah/edit/hapus riwayat, persentase + grafik, warning < 75%
+- **Kalender Akademik** — Bulanan, detail harian, event (deadline, quiz, UTS, UAS, libur)
+- **Catatan** — Markdown, pinned, filter per mata kuliah, tags
+- **Pengaturan** — Profil, upload avatar, tema (Light/Dark/System), export/import/hapus data, logout
+- **PWA** — Manifest, service worker, installable
 
 ## Teknologi
 
 | Teknologi | Kegunaan |
 |-----------|----------|
-| **HTML5** | Struktur halaman |
-| **CSS3** | Styling dengan Material Design 3 |
-| **Vanilla JavaScript (ES Modules)** | Logic aplikasi |
-| **Chart.js** | Grafik dan visualisasi data |
-| **Supabase** | Backend (Auth, Database, Storage, Realtime) |
-| **localStorage** | Penyimpanan offline fallback |
-| **PWA** | Manifest, Service Worker, Installable |
+| HTML + CSS (Material Design 3) + JS ES Modules | Frontend |
+| Supabase | Auth + Database + Storage |
+| Chart.js | Grafik |
+| localStorage | Cache offline (terpisah per user) |
 
 ## Struktur Folder
 
 ```
 EduFlow/
-├── index.html              # Dashboard utama
-├── login.html              # Halaman autentikasi
-├── subjects.html           # Manajemen mata kuliah
-├── tasks.html              # Manajemen tugas
-├── attendance.html         # Presensi
-├── calendar.html           # Kalender akademik
-├── notes.html              # Catatan
-├── settings.html           # Pengaturan
-├── manifest.json           # PWA manifest
-├── service-worker.js       # Service worker
+├── index.html / login.html / subjects.html / tasks.html
+├── attendance.html / calendar.html / notes.html / settings.html
+├── manifest.json / service-worker.js
 ├── assets/
-│   ├── css/
-│   │   ├── main.css        # Variabel, reset, base
-│   │   ├── components.css  # Button, card, badge, dll
-│   │   ├── dashboard.css   # Dashboard spesifik
-│   │   ├── subjects.css    # Subjects spesifik
-│   │   ├── tasks.css       # Tasks spesifik
-│   │   ├── attendance.css  # Attendance spesifik
-│   │   ├── calendar.css    # Calendar spesifik
-│   │   └── responsive.css  # Layout & responsive
+│   ├── css/ (main, components, dashboard, subjects, tasks, attendance, calendar, responsive)
 │   ├── js/
-│   │   ├── app.js          # Entry point
-│   │   ├── config/
-│   │   │   └── config.js   # Konfigurasi aplikasi
-│   │   ├── services/
-│   │   │   ├── auth.js     # Autentikasi (Supabase)
-│   │   │   ├── database.js # Database abstraction
-│   │   │   ├── storage.js  # localStorage management
-│   │   │   └── notification.js # Push notification
-│   │   ├── modules/
-│   │   │   ├── dashboard.js
-│   │   │   ├── subjects.js
-│   │   │   ├── tasks.js
-│   │   │   ├── attendance.js
-│   │   │   ├── calendar.js
-│   │   │   ├── notes.js
-│   │   │   └── settings.js
-│   │   ├── components/
-│   │   │   ├── sidebar.js
-│   │   │   ├── navbar.js
-│   │   │   ├── modal.js
-│   │   │   ├── toast.js
-│   │   │   ├── dialog.js
-│   │   │   ├── card.js
-│   │   │   └── chart.js
-│   │   ├── utils/
-│   │   │   ├── helper.js
-│   │   │   ├── validator.js
-│   │   │   ├── formatter.js
-│   │   │   └── constants.js
-│   │   └── data/
-│   │       └── dummyData.js
-│   ├── icons/              # PWA icons
-│   └── images/             # Gambar
-├── database/
-│   └── schema.sql          # Supabase schema
+│   │   ├── app.js                 # Entry point
+│   │   ├── config/config.js       # Konfigurasi (Supabase URL, key, dll)
+│   │   ├── services/              # auth.js, database.js, storage.js, notification.js
+│   │   ├── modules/               # dashboard.js, subjects.js, tasks.js, attendance.js, calendar.js, notes.js, settings.js
+│   │   ├── components/            # sidebar.js, navbar.js, modal.js, toast.js, card.js, chart.js
+│   │   ├── utils/                 # helper.js, validator.js, formatter.js, constants.js
+│   │   └── data/dummyData.js
+│   ├── icons/ / images/
+├── database/schema.sql
 └── docs/
-    └── README.md           # Dokumentasi
 ```
 
-## Cara Install
-
-### Prerequisites
-- Web browser modern (Chrome, Firefox, Edge, Safari)
-- Code editor (VS Code recommended)
-- Live Server extension (untuk development)
-
-### Local Development
+## Cara Jalanin Lokal
 
 ```bash
-# Clone repository
-git clone https://github.com/username/eduflow.git
-
-# Masuk ke direktori
-cd eduflow
-
-# Buka dengan Live Server
-# VS Code: Klik kanan index.html > Open with Live Server
+npx serve EduFlow
+# atau
+python -m http.server 3000 -d EduFlow
 ```
 
-### Deploy ke Vercel
+Atau pake Live Server VS Code — klik kanan `login.html` → Open with Live Server.
 
-```bash
-# Install Vercel CLI
-npm i -g vercel
+## Deploy ke Vercel
 
-# Deploy
-vercel --prod
-```
+1. Push ke GitHub
+2. Vercel → Add New Project → import repo
+3. Root Directory → `EduFlow` (Framework Preset → Other)
+4. Deploy
+5. Setting Supabase: Authentication → Providers → Email → Confirm email OFF
 
-### Deploy ke Netlify
+## Setup Supabase
 
-```bash
-# Install Netlify CLI
-npm i -g netlify-cli
-
-# Deploy
-netlify deploy --prod --dir=EduFlow
-```
-
-### Deploy ke GitHub Pages
-
-```bash
-# Push ke repository
-git push origin main
-
-# Settings > Pages > Source: main branch /docs folder
-# Atau gunakan GitHub Actions
-```
-
-### Setup Supabase
-
-1. Buat akun di [supabase.com](https://supabase.com)
-2. Buat project baru
-3. Jalankan SQL dari `database/schema.sql` di SQL Editor
-4. Copy URL dan Anon Key ke `assets/js/config/config.js` atau environment variable
-
-## Environment Variables
-
-Buat file `.env` di root:
-
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
+1. Buat project di [supabase.com](https://supabase.com)
+2. Jalankan `database/schema.sql` di SQL Editor
+3. Salin **Project URL** & **anon key** ke `assets/js/config/config.js`
+4. **Authentication → Providers → Email** → toggle ON, Confirm email OFF, Save
+5. **Authentication → Settings (URL Configuration)** → **Site URL** → isi URL Vercel`
 
 ## ERD
 
 ```
-users (1) ──── (N) subjects
-users (1) ──── (N) tasks
-users (1) ──── (N) attendance
-users (1) ──── (N) schedules
-users (1) ──── (N) notes
-users (1) ──── (N) notifications
-users (1) ──── (1) settings
-users (1) ──── (N) files
-users (1) ──── (N) events
-subjects (1) ── (N) tasks
-subjects (1) ── (N) attendance
-subjects (1) ── (N) schedules
-subjects (1) ── (N) notes
-subjects (1) ── (N) files
-subjects (1) ── (N) events
-```
-
-## Flow Aplikasi
-
-```
-Login/Register
-    ↓
-Dashboard ──→ Quick Stats ──→ Academic Momentum
-    │              ↓
-    ├── Mata Kuliah ──→ CRUD ──→ Progress Tracking
-    ├── Tugas ──→ CRUD ──→ Filter ──→ Search
-    ├── Presensi ──→ Mark Hadir/Absen ──→ Grafik
-    ├── Kalender ──→ Bulanan ──→ Detail Harian
-    ├── Catatan ──→ Markdown ──→ Pinned ──→ Filter
-    └── Pengaturan ──→ Profil ──→ Tema ──→ Export/Import
+users (1) ──── (N) subjects, tasks, attendance, schedules, notes, notifications, settings, files, events
+subjects (1) ── (N) tasks, attendance, schedules, notes, files, events
 ```
 
 ## Roadmap
 
-### v2.0 (Saat Ini)
-- [x] Refactor ke ES Modules
-- [x] Struktur folder rapi
-- [x] Dashboard informatif dengan grafik
-- [x] CRUD Mata Kuliah lengkap
-- [x] CRUD Tugas dengan filter
-- [x] Presensi dengan grafik
+### v2.0
+- [x] ES Modules, struktur folder
+- [x] CRUD mata kuliah, tugas, presensi, catatan
+- [x] Dashboard + grafik (Chart.js)
 - [x] Kalender akademik
-- [x] Catatan dengan markdown
-- [x] Pengaturan profil & tema
-- [x] Dark mode (Light/Dark/System)
-- [x] Autentikasi (Supabase ready)
-- [x] PWA (manifest + service worker)
-- [x] Responsive design
-- [x] Export/Import data
-- [x] Database schema SQL
-- [x] Dokumentasi
+- [x] Dark mode, responsive, PWA
+- [x] Auth Supabase (multi-user)
+- [x] Export/Import JSON
 
-### v2.1 (Coming Soon)
-- [ ] Global search
-- [ ] Upload file (PDF, gambar, dll)
-- [ ] Push notification
-- [ ] Reminder deadline
+### Planned
+- [ ] Upload file (PDF, gambar)
+- [ ] Push notification / reminder
 - [ ] Schedule timeline view
-- [ ] Export PDF & Excel
-- [ ] Semester GPA calculator
-
-### v2.2 (Future)
-- [ ] Supabase realtime sync
-- [ ] Kolaborasi grup
-- [ ] Integration Google Calendar
-- [ ] AI-powered study suggestions
-- [ ] Offline-first with IndexedDB
-- [ ] Mobile app (Capacitor)
-
-## Screenshot
-
-> Screenshot akan ditambahkan setelah deployment.
-
-## Kontribusi
-
-Silakan buka issue atau pull request untuk perbaikan dan penambahan fitur.
+- [ ] Export PDF
+- [ ] GPA calculator
+- [ ] Real-time sync (Supabase Realtime)
+- [ ] Offline-first (IndexedDB)
 
 ## Lisensi
 
-MIT License - Silakan gunakan, modifikasi, dan distribusikan sesuai kebutuhan.
+MIT
