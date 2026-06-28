@@ -25,6 +25,12 @@ export class AuthService {
         console.warn('Supabase Auth init failed:', e.message);
       }
     }
+    if (!this.currentUser) {
+      const cached = localStorage.getItem('eduflow_user');
+      if (cached) {
+        try { this.currentUser = JSON.parse(cached); } catch {}
+      }
+    }
   }
 
   get user() {
@@ -48,6 +54,7 @@ export class AuthService {
     data.user.name = email.split('@')[0];
     persist();
     this.currentUser = { email, id: 'local' };
+    localStorage.setItem('eduflow_user', JSON.stringify(this.currentUser));
     this._notify();
     return this.currentUser;
   }
@@ -62,7 +69,10 @@ export class AuthService {
     data.user.email = email;
     data.user.name = name || email.split('@')[0];
     persist();
-    return { email, id: 'local' };
+    const user = { email, id: 'local' };
+    this.currentUser = user;
+    localStorage.setItem('eduflow_user', JSON.stringify(user));
+    return user;
   }
 
   async logout() {
@@ -70,6 +80,7 @@ export class AuthService {
       await this.supabase.auth.signOut();
     }
     this.currentUser = null;
+    localStorage.removeItem('eduflow_user');
     this._notify();
   }
 

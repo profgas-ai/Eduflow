@@ -1,4 +1,5 @@
 import { loadData } from './services/storage.js';
+import { auth } from './services/auth.js';
 import { db } from './services/database.js';
 import { notifier } from './services/notification.js';
 import { setupModalBackdropClose } from './components/modal.js';
@@ -7,6 +8,11 @@ import { renderBottomNav, setActiveNav } from './components/navbar.js';
 
 (async function init() {
   loadData();
+  await auth.init();
+  if (!auth.isAuthenticated) {
+    window.location.href = 'login.html';
+    return;
+  }
   await db.init();
   setupModalBackdropClose();
 

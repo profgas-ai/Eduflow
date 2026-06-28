@@ -150,7 +150,12 @@ import { auth } from './assets/js/services/auth.js';
 import { showToast } from './assets/js/components/toast.js';
 import { CONFIG } from './assets/js/config/config.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await auth.init();
+  if (auth.isAuthenticated) {
+    window.location.href = 'index.html';
+    return;
+  }
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
   const forgotForm = document.getElementById('forgotForm');
