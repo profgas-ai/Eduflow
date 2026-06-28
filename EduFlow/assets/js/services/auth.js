@@ -43,11 +43,15 @@ export class AuthService {
 
   async login(email, password) {
     if (this.supabase) {
-      const { data, error } = await this.supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      this.currentUser = data.user;
-      this._notify();
-      return data.user;
+      try {
+        const { data, error } = await this.supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        this.currentUser = data.user;
+        this._notify();
+        return data.user;
+      } catch (e) {
+        console.warn('Supabase login failed, using localStorage:', e.message);
+      }
     }
     const data = getData();
     data.user.email = email;
@@ -61,15 +65,20 @@ export class AuthService {
 
   async register(email, password, name) {
     if (this.supabase) {
-      const { data, error } = await this.supabase.auth.signUp({ email, password, options: { data: { name } } });
-      if (error) throw error;
-      return data.user;
+      try {
+        const { data, error } = await this.supabase.auth.signUp({ email, password, options: { data: { name } } });
+        if (error) throw error;
+        this.currentUser = data.user;
+        return data.user;
+      } catch (e) {
+        console.warn('Supabase register failed, using localStorage:', e.message);
+      }
     }
     const data = getData();
     data.user.email = email;
     data.user.name = name || email.split('@')[0];
     persist();
-    const user = { email, id: 'local' };
+    const user = { email, id: 'local', name: data.user.name };
     this.currentUser = user;
     localStorage.setItem('eduflow_user', JSON.stringify(user));
     return user;
