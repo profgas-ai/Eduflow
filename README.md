@@ -2,6 +2,8 @@
 
 Manajemen mata kuliah, tugas, presensi, jadwal, dan catatan — PWA berbasis Supabase.
 
+> Repo private — source code tidak publik. Website dapat diakses di https://eduflow-two-pearl.vercel.app
+
 ## Fitur
 
 - **Auth Multi-User** — Register/login via Supabase, data terisolasi per user
@@ -45,31 +47,7 @@ EduFlow/
 └── docs/
 ```
 
-## Cara Jalanin Lokal
 
-```bash
-npx serve EduFlow
-# atau
-python -m http.server 3000 -d EduFlow
-```
-
-Atau pake Live Server VS Code — klik kanan `login.html` → Open with Live Server.
-
-## Deploy ke Vercel
-
-1. Push ke GitHub
-2. Vercel → Add New Project → import repo
-3. Root Directory → `EduFlow` (Framework Preset → Other)
-4. Deploy
-5. Setting Supabase: Authentication → Providers → Email → Confirm email OFF
-
-## Setup Supabase
-
-1. Buat project di [supabase.com](https://supabase.com)
-2. Jalankan `database/schema.sql` di SQL Editor
-3. Salin **Project URL** & **anon key** ke `assets/js/config/config.js`
-4. **Authentication → Providers → Email** → toggle ON, Confirm email OFF, Save
-5. **Authentication → Settings (URL Configuration)** → **Site URL** → isi URL Vercel`
 
 ## ERD
 
