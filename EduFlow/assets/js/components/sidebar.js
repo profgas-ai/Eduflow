@@ -52,4 +52,22 @@ export function renderSidebar(currentPage) {
       }
     }
   });
+
+  let logoutBtn = sidebar.querySelector('#sidebar-logout');
+  if (!logoutBtn) {
+    logoutBtn = document.createElement('a');
+    logoutBtn.id = 'sidebar-logout';
+    logoutBtn.className = 'sidebar-link';
+    logoutBtn.href = '#';
+    logoutBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Keluar`;
+    logoutBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const { auth } = await import('../services/auth.js');
+      await auth.logout();
+      window.location.href = 'login.html';
+    });
+    const foot = sidebar.querySelector('.sidebar-foot');
+    if (foot) sidebar.insertBefore(logoutBtn, foot);
+    else sidebar.appendChild(logoutBtn);
+  }
 }
