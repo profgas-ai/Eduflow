@@ -1,6 +1,6 @@
-import { getData, persist } from '../services/storage.js';
+import { getData } from '../services/storage.js';
+import { db } from '../services/database.js';
 import { escapeHtml, generateId } from '../utils/helper.js';
-import { createAttendanceCard } from '../components/card.js';
 import { showToast } from '../components/toast.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { CONFIG } from '../config/config.js';
@@ -93,12 +93,13 @@ export function initAttendance() {
     if (!s) return;
     data.attendanceRecords = data.attendanceRecords || [];
     const meeting = data.attendanceRecords.filter(r => r.subjectId === id).length + 1;
-    data.attendanceRecords.push({
+    const record = {
       id: generateId(), subjectId: id, meeting,
       date: new Date().toISOString(), status,
       notes: '', createdAt: new Date().toISOString(),
-    });
-    persist();
+    };
+    data.attendanceRecords.push(record);
+    db.insert('attendance', record);
     showToast(status === 'hadir' ? 'Ditandai Hadir' : 'Ditandai Absen');
     render();
   }
@@ -142,7 +143,7 @@ export function initAttendance() {
         const record = data.attendanceRecords.find(r => r.id === recordId);
         if (record) {
           record.status = newStatus;
-          persist();
+          db.update('attendance', { id: recordId }, { status: newStatus });
           showToast('Status diubah ke ' + newStatus);
           closeModal('historyModal');
           render();
@@ -154,7 +155,7 @@ export function initAttendance() {
       btn.addEventListener('click', () => {
         const recordId = btn.dataset.id;
         data.attendanceRecords = data.attendanceRecords.filter(r => r.id !== recordId);
-        persist();
+        db.delete('attendance', { id: recordId });
         showToast('Record dihapus');
         closeModal('historyModal');
         render();

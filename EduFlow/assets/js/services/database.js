@@ -59,6 +59,7 @@ export class Database {
         console.warn(`Insert into ${table} failed:`, e.message);
       }
     }
+    return this._localInsertUpdate(table, records);
   }
 
   async update(table, match, values) {
@@ -71,6 +72,7 @@ export class Database {
         console.warn(`Update ${table} failed:`, e.message);
       }
     }
+    return this._localInsertUpdate(table, values, match);
   }
 
   async delete(table, match) {
@@ -82,10 +84,49 @@ export class Database {
         console.warn(`Delete from ${table} failed:`, e.message);
       }
     }
+    this._localDelete(table, match);
   }
 
-  _localQuery(table, options = {}) {
+  _localInsertUpdate(table, records, match = null) {
     const data = getData();
+    const key = this._mapTable(table);
+    if (!key) return null;
+    data[key] = data[key] || [];
+    if (Array.isArray(records)) {
+      if (match && match.id) {
+        const idx = data[key].findIndex(r => r.id === match.id);
+        if (idx >= 0) {
+          data[key][idx] = { ...data[key][idx], ...records[0] };
+        } else {
+          data[key].push(records[0]);
+        }
+      } else {
+        data[key].push(...records);
+      }
+    } else if (match && match.id) {
+      const idx = data[key].findIndex(r => r.id === match.id);
+      if (idx >= 0) {
+        data[key][idx] = { ...data[key][idx], ...records };
+      } else {
+        data[key].push(records);
+      }
+    } else {
+      data[key].push(records);
+    }
+    persist();
+    return [records].flat();
+  }
+
+  _localDelete(table, match) {
+    if (!match || !match.id) return;
+    const data = getData();
+    const key = this._mapTable(table);
+    if (!key) return;
+    data[key] = (data[key] || []).filter(r => r.id !== match.id);
+    persist();
+  }
+
+  _mapTable(table) {
     const map = {
       users: 'user',
       subjects: 'subjects',
@@ -97,7 +138,12 @@ export class Database {
       events: 'events',
       files: 'files',
     };
-    const key = map[table];
+    return map[table];
+  }
+
+  _localQuery(table, options = {}) {
+    const data = getData();
+    const key = this._mapTable(table);
     if (!key) return [];
     let results = data[key];
     if (!results) return [];

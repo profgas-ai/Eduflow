@@ -91,3 +91,9 @@
 .attendance-chart-section {
   margin-bottom: 1.5rem;
 }
+
+.alpha-remaining {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tertiary);
+}

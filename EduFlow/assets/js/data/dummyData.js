@@ -3,10 +3,10 @@ import { generateId } from '../utils/helper.js';
 export function createDummyData() {
   const now = new Date().toISOString();
   const subjects = [
-    { id: generateId(), code: 'CS-302', name: 'Advanced Algorithm', sks: 3, semester: 5, category: 'Wajib', lecturer: 'Prof. Aristhos', lecturerEmail: 'aristhos@univ.ac.id', lecturerPhone: '081234567890', room: 'Lab Komputasi A', day: 'Senin', startTime: '08:00', endTime: '10:30', linkLms: 'https://lms.univ.ac.id/cs302', linkMeet: '', linkWa: '', notes: '', color: '#4f46e5', icon: '', active: true, totalSessions: 14, present: 12, currentMeeting: 15, totalMeetings: 16, createdAt: now, updatedAt: now },
-    { id: generateId(), code: 'IT-204', name: 'Database Systems', sks: 4, semester: 5, category: 'Wajib', lecturer: 'Dr. Sarah Jenkins', lecturerEmail: 'sarah@univ.ac.id', lecturerPhone: '081234567891', room: 'Ruang 301', day: 'Selasa', startTime: '09:00', endTime: '12:00', linkLms: '', linkMeet: 'https://meet.google.com/db2024', linkWa: '', notes: '', color: '#006c49', icon: '', active: true, totalSessions: 10, present: 10, currentMeeting: 11, totalMeetings: 16, createdAt: now, updatedAt: now },
-    { id: generateId(), code: 'UI-101', name: 'Human Computer Interaction', sks: 2, semester: 5, category: 'Wajib', lecturer: 'Elena Rodriguez', lecturerEmail: 'elena@univ.ac.id', lecturerPhone: '081234567892', room: 'Ruang 205', day: 'Rabu', startTime: '13:00', endTime: '14:40', linkLms: '', linkMeet: '', linkWa: '', notes: '', color: '#a44100', icon: '', active: true, totalSessions: 12, present: 8, currentMeeting: 13, totalMeetings: 16, createdAt: now, updatedAt: now },
-    { id: generateId(), code: 'CS-401', name: 'Software Engineering', sks: 3, semester: 5, category: 'Wajib', lecturer: 'Prof. Marcus V.', lecturerEmail: 'marcus@univ.ac.id', lecturerPhone: '081234567893', room: 'Ruang 102', day: 'Kamis', startTime: '10:00', endTime: '12:30', linkLms: 'https://lms.univ.ac.id/cs401', linkMeet: '', linkWa: '', notes: '', color: '#0e7490', icon: '', active: true, totalSessions: 11, present: 9, currentMeeting: 12, totalMeetings: 16, createdAt: now, updatedAt: now },
+    { id: generateId(), code: 'CS-302', name: 'Algoritma Lanjut', sks: 3, semester: 5, category: 'Wajib', lecturer: 'Prof. Dr. Budi Santoso', lecturerEmail: 'budi@univ.ac.id', lecturerPhone: '081234567890', room: 'Lab Komputasi A', day: 'Senin', startTime: '08:00', endTime: '10:30', linkLms: 'https://lms.univ.ac.id/cs302', linkMeet: '', linkWa: '', notes: '', color: '#4f46e5', icon: '', active: true, totalSessions: 14, present: 12, currentMeeting: 15, totalMeetings: 16, createdAt: now, updatedAt: now },
+    { id: generateId(), code: 'IT-204', name: 'Sistem Basis Data', sks: 4, semester: 5, category: 'Wajib', lecturer: 'Dr. Sari Wulandari', lecturerEmail: 'sari@univ.ac.id', lecturerPhone: '081234567891', room: 'Ruang 301', day: 'Selasa', startTime: '09:00', endTime: '12:00', linkLms: '', linkMeet: 'https://meet.google.com/db2024', linkWa: '', notes: '', color: '#006c49', icon: '', active: true, totalSessions: 10, present: 10, currentMeeting: 11, totalMeetings: 16, createdAt: now, updatedAt: now },
+    { id: generateId(), code: 'UI-101', name: 'Interaksi Manusia Komputer', sks: 2, semester: 5, category: 'Wajib', lecturer: 'Dian Permata Sari', lecturerEmail: 'dian@univ.ac.id', lecturerPhone: '081234567892', room: 'Ruang 205', day: 'Rabu', startTime: '13:00', endTime: '14:40', linkLms: '', linkMeet: '', linkWa: '', notes: '', color: '#a44100', icon: '', active: true, totalSessions: 12, present: 8, currentMeeting: 13, totalMeetings: 16, createdAt: now, updatedAt: now },
+    { id: generateId(), code: 'CS-401', name: 'Rekayasa Perangkat Lunak', sks: 3, semester: 5, category: 'Wajib', lecturer: 'Prof. Dr. Agus Pratama', lecturerEmail: 'agus@univ.ac.id', lecturerPhone: '081234567893', room: 'Ruang 102', day: 'Kamis', startTime: '10:00', endTime: '12:30', linkLms: 'https://lms.univ.ac.id/cs401', linkMeet: '', linkWa: '', notes: '', color: '#0e7490', icon: '', active: true, totalSessions: 11, present: 9, currentMeeting: 12, totalMeetings: 16, createdAt: now, updatedAt: now },
   ];
 
   const tasks = [
@@ -17,10 +17,10 @@ export function createDummyData() {
   ];
 
   const schedules = [
-    { id: generateId(), subjectId: subjects[0].id, day: 'Senin', startTime: '08:00', endTime: '10:30', room: 'Lab Komputasi A', lecturer: 'Prof. Aristhos', linkMeet: '' },
-    { id: generateId(), subjectId: subjects[1].id, day: 'Selasa', startTime: '09:00', endTime: '12:00', room: 'Ruang 301', lecturer: 'Dr. Sarah Jenkins', linkMeet: 'https://meet.google.com/db2024' },
-    { id: generateId(), subjectId: subjects[2].id, day: 'Rabu', startTime: '13:00', endTime: '14:40', room: 'Ruang 205', lecturer: 'Elena Rodriguez', linkMeet: '' },
-    { id: generateId(), subjectId: subjects[3].id, day: 'Kamis', startTime: '10:00', endTime: '12:30', room: 'Ruang 102', lecturer: 'Prof. Marcus V.', linkMeet: '' },
+    { id: generateId(), subjectId: subjects[0].id, day: 'Senin', startTime: '08:00', endTime: '10:30', room: 'Lab Komputasi A', lecturer: 'Prof. Dr. Budi Santoso', linkMeet: '' },
+    { id: generateId(), subjectId: subjects[1].id, day: 'Selasa', startTime: '09:00', endTime: '12:00', room: 'Ruang 301', lecturer: 'Dr. Sari Wulandari', linkMeet: 'https://meet.google.com/db2024' },
+    { id: generateId(), subjectId: subjects[2].id, day: 'Rabu', startTime: '13:00', endTime: '14:40', room: 'Ruang 205', lecturer: 'Dian Permata Sari', linkMeet: '' },
+    { id: generateId(), subjectId: subjects[3].id, day: 'Kamis', startTime: '10:00', endTime: '12:30', room: 'Ruang 102', lecturer: 'Prof. Dr. Agus Pratama', linkMeet: '' },
   ];
 
   const attendanceRecords = [];
@@ -44,8 +44,8 @@ export function createDummyData() {
   ];
 
   const notifications = [
-    { id: generateId(), type: 'deadline', title: 'Deadline Tugas', message: 'Problem Set 8 Advanced Algorithm deadline 2 hari lagi', read: false, createdAt: now },
-    { id: generateId(), type: 'class', title: 'Kelas Hari Ini', message: 'Database Systems dimulai pukul 09:00', read: false, createdAt: now },
+    { id: generateId(), type: 'deadline', title: 'Deadline Tugas', message: 'Problem Set 8 Algoritma Lanjut deadline 2 hari lagi', read: false, createdAt: now },
+    { id: generateId(), type: 'class', title: 'Kelas Hari Ini', message: 'Sistem Basis Data dimulai pukul 09:00', read: false, createdAt: now },
   ];
 
   const events = [
@@ -55,11 +55,11 @@ export function createDummyData() {
 
   return {
     user: {
-      name: 'Bagas',
-      email: 'bagas@univ.ac.id',
+      name: 'Rizky Pratama',
+      email: 'rizky@univ.ac.id',
       semester: 5,
       studyProgram: 'Informatika',
-      university: 'Universitas Teknologi',
+      university: 'Universitas Nusantara',
       avatar: '',
       theme: 'system',
       language: 'id',

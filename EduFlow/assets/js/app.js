@@ -64,10 +64,23 @@ import { renderBottomNav, setActiveNav } from './components/navbar.js';
 
   applySavedTheme();
   updateNotificationBadge();
+
+  const loadingEl = document.getElementById('appLoading');
+  if (loadingEl) {
+    loadingEl.style.opacity = '0';
+    setTimeout(() => loadingEl.remove(), 400);
+  }
+
+  if ('serviceWorker' in navigator) {
+    const swUrl = new URL('../service-worker.js', import.meta.url).pathname;
+    navigator.serviceWorker.register(swUrl).catch(e => console.warn('SW registration failed:', e));
+  }
 })();
 
 function applySavedTheme() {
-  const data = JSON.parse(localStorage.getItem('eduflow_data_v2') || '{}');
+  const key = 'eduflow_data_v2' + (auth.currentUser?.id ? '_' + auth.currentUser.id : '');
+  const raw = localStorage.getItem(key);
+  const data = raw ? JSON.parse(raw) : {};
   const theme = data.user?.theme || data.settings?.theme || 'system';
   if (theme === 'system') {
     document.documentElement.setAttribute('data-theme',

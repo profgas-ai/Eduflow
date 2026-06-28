@@ -29,6 +29,11 @@ export function createTaskCard(task, subjects) {
   const color = subj ? subj.color : 'var(--primary)';
   const tl = formatTimeLeft(task.deadline);
   const completed = task.status === 'completed';
+  const checklist = task.checklist || [];
+  const doneCount = checklist.filter(s => s.done).length;
+  const subtaskHtml = checklist.length > 0
+    ? `<div style="margin-top:0.4rem;font-size:12px;color:var(--on-surface-variant)">Sub-tugas: ${doneCount}/${checklist.length}</div>`
+    : '';
   return `
     <div class="task-card ${completed ? 'completed' : ''}" style="border-left-color:${color}" data-id="${task.id}">
       <div class="task-checkbox ${completed ? 'checked' : ''}" data-id="${task.id}">
@@ -45,6 +50,7 @@ export function createTaskCard(task, subjects) {
           <span class="task-due">${formatDate(task.deadline, 'short')}</span>
           ${task.priority ? `<span class="priority-badge priority-${task.priority}">${task.priority}</span>` : ''}
         </div>
+        ${subtaskHtml}
         <div class="task-actions">
           ${!completed ? `<button class="icon-action btn-edit-task" data-id="${task.id}" title="Edit">✎</button>` : ''}
           <button class="icon-action btn-delete-task" data-id="${task.id}" title="Hapus">🗑</button>
@@ -56,6 +62,12 @@ export function createTaskCard(task, subjects) {
 export function createAttendanceCard(subject) {
   const pct = subject.totalSessions > 0 ? Math.round((subject.present / subject.totalSessions) * 100) : 0;
   const color = pct >= 85 ? 'var(--secondary)' : pct >= 75 ? 'var(--primary)' : 'var(--error)';
+  let alphaRemaining = '';
+  if (subject.totalSessions > 0 && subject.present > 0) {
+    const maxAbsent = Math.floor((subject.present / 0.75) - subject.totalSessions);
+    if (maxAbsent >= 0) alphaRemaining = `<span class="alpha-remaining">Sisa alpha: ${maxAbsent}x</span>`;
+    else alphaRemaining = `<span class="alpha-remaining" style="color:var(--error)">Kehadiran di bawah 75%</span>`;
+  }
   return `
     <div class="card attendance-subject" data-id="${subject.id}">
       <div class="top-row">
@@ -69,6 +81,7 @@ export function createAttendanceCard(subject) {
         </div>
       </div>
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+      ${alphaRemaining ? `<div style="font-size:12px;margin-top:4px;text-align:right">${alphaRemaining}</div>` : ''}
       <div class="attendance-actions">
         <button class="btn btn-success-outline btn-sm btn-attend-present" data-id="${subject.id}" style="flex:1">✓ Hadir</button>
         <button class="btn btn-error-outline btn-sm btn-attend-absent" data-id="${subject.id}" style="flex:1">✕ Absen</button>

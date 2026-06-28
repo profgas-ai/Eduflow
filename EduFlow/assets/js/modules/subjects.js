@@ -1,4 +1,5 @@
-import { getData, persist } from '../services/storage.js';
+import { getData } from '../services/storage.js';
+import { db } from '../services/database.js';
 import { escapeHtml, generateId, sanitizeInput } from '../utils/helper.js';
 import { createSubjectCard } from '../components/card.js';
 import { openModal, closeModal } from '../components/modal.js';
@@ -188,7 +189,9 @@ export function initSubjects() {
     if (id) {
       const s = data.subjects.find(x => x.id === id);
       if (s) {
-        Object.assign(s, { name, code, lecturer, sks, semester, color, ...extra, updatedAt: new Date().toISOString() });
+        const updates = { name, code, lecturer, sks, semester, color, ...extra, updatedAt: new Date().toISOString() };
+        Object.assign(s, updates);
+        db.update('subjects', { id }, updates);
         showToast('Mata kuliah diperbarui');
       }
     } else {
@@ -199,18 +202,21 @@ export function initSubjects() {
         createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
       };
       data.subjects.push(newSubject);
+      db.insert('subjects', newSubject);
       if (extra.day && extra.startTime) {
         data.schedules = data.schedules || [];
-        data.schedules.push({
+        const newSchedule = {
           id: generateId(), subjectId: newSubject.id,
           day: extra.day, startTime: extra.startTime, endTime: extra.endTime,
           room: extra.room, lecturer, linkMeet: extra.linkMeet,
-        });
+        };
+        data.schedules.push(newSchedule);
+        db.insert('schedules', newSchedule);
       }
       showToast('Mata kuliah ditambahkan');
       activeSemester = semester;
     }
-    persist();
+    closeModal('subjectModalBackdrop');
     closeModal('subjectModalBackdrop');
     render();
   }

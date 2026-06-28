@@ -1,4 +1,5 @@
-import { getData, persist } from '../services/storage.js';
+import { getData } from '../services/storage.js';
+import { db } from '../services/database.js';
 import { escapeHtml, generateId, sanitizeInput, debounce } from '../utils/helper.js';
 import { createTaskCard } from '../components/card.js';
 import { openModal, closeModal } from '../components/modal.js';
@@ -97,14 +98,11 @@ export function initTasks() {
   function toggleTask(id) {
     const t = data.tasks.find(x => x.id === id);
     if (t) {
-      if (t.status === 'completed') {
-        t.status = 'pending';
-        t.completedAt = null;
-      } else {
-        t.status = 'completed';
-        t.completedAt = new Date().toISOString();
-      }
-      persist();
+      const updates = t.status === 'completed'
+        ? { status: 'pending', completedAt: null }
+        : { status: 'completed', completedAt: new Date().toISOString() };
+      Object.assign(t, updates);
+      db.update('tasks', { id }, updates);
       render();
     }
   }
@@ -119,8 +117,29 @@ export function initTasks() {
     });
     if (!confirmed) return;
     data.tasks = data.tasks.filter(x => x.id !== id);
-    persist();
+    db.delete('tasks', { id });
     render();
+  }
+
+  function getSubtaskInputs() {
+    const inputs = document.querySelectorAll('.subtask-input');
+    return Array.from(inputs).map(i => ({ text: i.value.trim(), done: false })).filter(s => s.text);
+  }
+
+  function renderSubtaskInputs(items) {
+    const container = document.getElementById('subtaskContainer');
+    if (!container) return;
+    container.innerHTML = (items.length === 0 ? [{ text: '', done: false }] : items).map((item, i) => `
+      <div class="subtask-row" style="display:flex;gap:0.4rem;margin-bottom:0.3rem">
+        <input type="text" class="subtask-input" value="${escapeHtml(item.text)}" placeholder="cth: Bab 1" style="flex:1;padding:0.4rem 0.6rem;border:1px solid var(--outline-variant);border-radius:var(--radius-sm);background:var(--surface-container);font-size:13px">
+        <button class="icon-action subtask-remove" type="button" style="font-size:16px">×</button>
+      </div>
+    `).join('');
+    container.querySelectorAll('.subtask-remove').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.currentTarget.closest('.subtask-row')?.remove();
+      });
+    });
   }
 
   function resetModal() {
@@ -134,6 +153,7 @@ export function initTasks() {
     setValue('tCategory', '');
     setValue('tProgress', 0);
     renderSubjectOptions('tSubject');
+    renderSubtaskInputs([]);
     openModal('taskModalBackdrop');
   }
 
@@ -155,6 +175,7 @@ export function initTasks() {
       d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
       setValue('tDue', d.toISOString().slice(0, 16));
     }
+    renderSubtaskInputs(t.checklist || []);
     openModal('taskModalBackdrop');
   }
 
@@ -166,35 +187,40 @@ export function initTasks() {
     const subjectId = document.getElementById('tSubject')?.value || '';
     const priority = document.getElementById('tPriority')?.value || 'medium';
     const category = document.getElementById('tCategory')?.value || '';
-    const progress = Number(document.getElementById('tProgress')?.value) || 0;
     const notes = document.getElementById('tNotes')?.value?.trim() || '';
     const refs = (document.getElementById('tReference')?.value || '').split(',').map(r => r.trim()).filter(Boolean);
+    const checklist = getSubtaskInputs();
+    const doneCount = checklist.filter(s => s.done).length;
+    const progress = checklist.length > 0 ? Math.round((doneCount / checklist.length) * 100) : Number(document.getElementById('tProgress')?.value) || 0;
 
     if (!title || !due) { showToast('Lengkapi judul dan tenggat'); return; }
 
     if (id) {
       const t = data.tasks.find(x => x.id === id);
       if (t) {
-        Object.assign(t, {
+        const updates = {
           title, description: desc, deadline: new Date(due).toISOString(),
           deadlineTime: due.includes('T') ? due.split('T')[1] : '23:59',
-          subjectId, priority, category, progress, notes, references: refs,
-        });
+          subjectId, priority, category, progress, notes, references: refs, checklist,
+        };
+        Object.assign(t, updates);
+        db.update('tasks', { id }, updates);
         showToast('Tugas diperbarui');
       }
     } else {
-      data.tasks.push({
+      const newTask = {
         id: generateId(), subjectId, title, description: desc,
         deadline: new Date(due).toISOString(),
         deadlineTime: due.includes('T') ? due.split('T')[1] : '23:59',
         priority, status: 'pending', category, progress, notes,
-        references: refs, checklist: [], attachments: [],
+        references: refs, checklist, attachments: [],
         reminder: false,
         createdAt: new Date().toISOString(), completedAt: null,
-      });
+      };
+      data.tasks.push(newTask);
+      db.insert('tasks', newTask);
       showToast('Tugas ditambahkan');
     }
-    persist();
     closeModal('taskModalBackdrop');
     render();
   }
@@ -204,6 +230,17 @@ export function initTasks() {
 
     document.getElementById('fabBtn')?.addEventListener('click', resetModal);
     document.getElementById('taskSaveBtn')?.addEventListener('click', saveTask);
+    document.getElementById('addSubtaskBtn')?.addEventListener('click', () => {
+      const container = document.getElementById('subtaskContainer');
+      if (container) {
+        const div = document.createElement('div');
+        div.className = 'subtask-row';
+        div.style.cssText = 'display:flex;gap:0.4rem;margin-bottom:0.3rem';
+        div.innerHTML = '<input type="text" class="subtask-input" placeholder="cth: Bab 1" style="flex:1;padding:0.4rem 0.6rem;border:1px solid var(--outline-variant);border-radius:var(--radius-sm);background:var(--surface-container);font-size:13px"><button class="icon-action subtask-remove" type="button" style="font-size:16px">×</button>';
+        div.querySelector('.subtask-remove').addEventListener('click', () => div.remove());
+        container.appendChild(div);
+      }
+    });
 
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {

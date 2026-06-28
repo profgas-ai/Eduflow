@@ -347,3 +347,22 @@
 .filter-select:focus {
   border-color: var(--primary);
 }
+
+.md-preview h3,
+.md-preview h4,
+.md-preview h5 {
+  margin: 0.5rem 0 0.25rem;
+}
+.md-preview ul {
+  margin: 0.25rem 0;
+  padding-left: 1.25rem;
+}
+.md-preview code {
+  background: var(--surface-container-high);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.md-preview strong {
+  font-weight: 700;
+}

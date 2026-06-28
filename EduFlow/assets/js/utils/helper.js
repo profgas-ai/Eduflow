@@ -97,3 +97,18 @@ export function isSameDay(d1, d2) {
     && a.getMonth() === b.getMonth()
     && a.getDate() === b.getDate();
 }
+
+export function renderMarkdown(md) {
+  if (!md) return '';
+  let html = escapeHtml(md);
+  html = html.replace(/### (.+)/g, '<h5>$1</h5>');
+  html = html.replace(/## (.+)/g, '<h4>$1</h4>');
+  html = html.replace(/# (.+)/g, '<h3>$1</h3>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+  html = html.replace(/- (.+)/g, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+  html = html.replace(/\n/g, '<br>');
+  return html;
+}

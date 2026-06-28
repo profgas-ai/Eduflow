@@ -46,11 +46,12 @@ export function url(value) {
   }
 }
 
-export function validateForm(rules) {
+export function validateForm(rules, data = {}) {
   const errors = {};
   for (const [field, validators] of Object.entries(rules)) {
     for (const validator of validators) {
-      const error = validator(value => value, field);
+      const value = data[field];
+      const error = validator(value, field);
       if (error) {
         errors[field] = error;
         break;

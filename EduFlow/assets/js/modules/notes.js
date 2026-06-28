@@ -1,5 +1,6 @@
-import { getData, persist } from '../services/storage.js';
-import { escapeHtml, generateId, sanitizeInput, debounce } from '../utils/helper.js';
+import { getData } from '../services/storage.js';
+import { db } from '../services/database.js';
+import { escapeHtml, generateId, sanitizeInput, debounce, renderMarkdown } from '../utils/helper.js';
 import { formatDate } from '../utils/formatter.js';
 import { showToast } from '../components/toast.js';
 import { openModal, closeModal } from '../components/modal.js';
@@ -109,7 +110,7 @@ export function initNotes() {
     if (note) {
       note.pinned = !note.pinned;
       note.updatedAt = new Date().toISOString();
-      persist();
+      db.update('notes', { id }, { pinned: note.pinned, updatedAt: note.updatedAt });
       render();
     }
   }
@@ -122,7 +123,7 @@ export function initNotes() {
     });
     if (!confirmed) return;
     data.notes = (data.notes || []).filter(n => n.id !== id);
-    persist();
+    db.delete('notes', { id });
     render();
   }
 
@@ -172,19 +173,22 @@ export function initNotes() {
     if (id) {
       const note = (data.notes || []).find(n => n.id === id);
       if (note) {
-        Object.assign(note, { title, content, tags, subjectId, updatedAt: now });
+        const updates = { title, content, tags, subjectId, updatedAt: now };
+        Object.assign(note, updates);
+        db.update('notes', { id }, updates);
         showToast('Catatan diperbarui');
       }
     } else {
       data.notes = data.notes || [];
-      data.notes.push({
+      const newNote = {
         id: generateId(), subjectId, title, content,
         checklist: [], pinned: false, tags,
         createdAt: now, updatedAt: now,
-      });
+      };
+      data.notes.push(newNote);
+      db.insert('notes', newNote);
       showToast('Catatan ditambahkan');
     }
-    persist();
     closeModal('noteModalBackdrop');
     render();
   }
@@ -198,6 +202,23 @@ export function initNotes() {
     render();
     document.getElementById('fabBtn')?.addEventListener('click', openAddModal);
     document.getElementById('noteSaveBtn')?.addEventListener('click', saveNote);
+
+    document.getElementById('mdEditBtn')?.addEventListener('click', () => {
+      document.getElementById('noteContent').style.display = 'block';
+      document.getElementById('mdPreview').style.display = 'none';
+      document.getElementById('mdEditBtn').className = 'btn btn-sm btn-primary';
+      document.getElementById('mdPreviewBtn').className = 'btn btn-sm btn-ghost';
+    });
+
+    document.getElementById('mdPreviewBtn')?.addEventListener('click', () => {
+      const content = document.getElementById('noteContent').value;
+      const preview = document.getElementById('mdPreview');
+      preview.innerHTML = renderMarkdown(content);
+      document.getElementById('noteContent').style.display = 'none';
+      preview.style.display = 'block';
+      document.getElementById('mdEditBtn').className = 'btn btn-sm btn-ghost';
+      document.getElementById('mdPreviewBtn').className = 'btn btn-sm btn-primary';
+    });
 
     const searchInput = document.getElementById('notesSearch');
     if (searchInput) {

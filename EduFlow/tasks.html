@@ -6,6 +6,8 @@
 <title>EduFlow - Tugas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#4f46e5" />
 <link rel="stylesheet" href="assets/css/main.css" />
 <link rel="stylesheet" href="assets/css/components.css" />
 <link rel="stylesheet" href="assets/css/tasks.css" />
@@ -140,6 +142,16 @@
     <div class="field">
       <label>Progress (%)</label>
       <input type="number" id="tProgress" min="0" max="100" value="0" />
+    </div>
+    <div class="field">
+      <label>Sub-Tugas (checklist)</label>
+      <div id="subtaskContainer" style="margin-bottom:0.5rem">
+        <div class="subtask-row" style="display:flex;gap:0.4rem;margin-bottom:0.3rem">
+          <input type="text" class="subtask-input" placeholder="cth: Bab 1" style="flex:1;padding:0.4rem 0.6rem;border:1px solid var(--outline-variant);border-radius:var(--radius-sm);background:var(--surface-container);font-size:13px">
+          <button class="icon-action subtask-remove" type="button" style="font-size:16px">×</button>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="addSubtaskBtn" type="button">+ Tambah Sub-Tugas</button>
     </div>
     <div class="field">
       <label>Catatan</label>

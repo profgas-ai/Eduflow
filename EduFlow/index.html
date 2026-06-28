@@ -6,15 +6,24 @@
 <title>EduFlow - Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#4f46e5" />
 <link rel="stylesheet" href="assets/css/main.css" />
 <link rel="stylesheet" href="assets/css/components.css" />
 <link rel="stylesheet" href="assets/css/dashboard.css" />
 <link rel="stylesheet" href="assets/css/tasks.css" />
 <link rel="stylesheet" href="assets/css/responsive.css" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<style>.chart-container canvas{display:block;width:100%!important;height:100%!important;}</style>
+<style>.chart-container canvas{display:block;width:100%!important;height:100%!important;}
+@keyframes spin{to{transform:rotate(360deg)}}</style>
 </head>
 <body data-page="home">
+<div id="appLoading" style="position:fixed;inset:0;background:var(--surface);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.4s">
+  <div style="text-align:center">
+    <div style="width:40px;height:40px;border:4px solid var(--outline-variant);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem"></div>
+    <div style="font-size:14px;color:var(--on-surface-variant)">Memuat EduFlow...</div>
+  </div>
+</div>
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-foot">EduFlow &copy; 2026</div>
@@ -69,11 +78,11 @@
           <div class="stat-label">Tugas Hari Ini</div>
           <div class="stat-value"><span id="tasksDueToday">0</span> <small>tersisa</small></div>
         </div>
-        <div class="card stat-card">
+        <div class="card stat-card" id="attendanceStatCard" style="cursor:pointer">
           <div class="stat-icon" style="color:var(--secondary)">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </div>
-          <div class="stat-label">Kehadiran</div>
+          <div class="stat-label">Kehadiran <small style="font-weight:400;color:var(--tertiary)">(klik presensi)</small></div>
           <div class="stat-value"><span id="attendancePct">0%</span></div>
         </div>
       </div>
@@ -108,9 +117,18 @@
 
       <div class="section-head">
         <h2>Jadwal Hari Ini</h2>
-        <a class="link-btn" href="subjects.html">Lihat Semua</a>
+        <button class="link-btn" id="showTimetableBtn" type="button">Tampilan Jadwal</button>
       </div>
       <div class="stack-gap" id="classList"></div>
+      <div id="timetableContainer" style="display:none;margin-bottom:1.5rem;overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <div id="timetableGrid" style="min-width:700px"></div>
+      </div>
+
+      <div class="section-head">
+        <h2>Deadline Minggu Ini</h2>
+        <span class="badge-count" id="weeklyDeadlineCount">0</span>
+      </div>
+      <div class="stack-gap" id="weeklyDeadlineList"></div>
 
       <div class="section-head">
         <h2>Tugas Terdekat</h2>
@@ -122,6 +140,8 @@
     <button class="fab" id="fabBtn" aria-label="Tambah tugas cepat">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
     </button>
+
+    <button class="ipk-fab" id="ipkFabBtn" aria-label="Kalkulator IPK" title="Kalkulator IPK" style="position:fixed;bottom:5rem;right:1.25rem;width:44px;height:44px;border-radius:50%;background:var(--tertiary);color:#fff;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.2);cursor:pointer;font-weight:700;font-size:14px;z-index:99;">Σ</button>
 
     <nav class="bottom-nav"></nav>
   </div>
@@ -149,6 +169,35 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="quickAttendBackdrop" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:420px">
+    <h3>Presensi Cepat</h3>
+    <p style="font-size:14px;color:var(--on-surface-variant);margin-bottom:1rem;">Tandai kehadiran hari ini untuk setiap mata kuliah.</p>
+    <div id="quickAttendList" style="margin-bottom:1rem;max-height:350px;overflow-y:auto;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('quickAttendBackdrop').classList.remove('open')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="ipkModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:480px">
+    <h3>Kalkulator IPK</h3>
+    <p style="font-size:14px;color:var(--on-surface-variant);margin-bottom:1rem;">Masukkan nilai setiap mata kuliah untuk menghitung IPK.</p>
+    <div id="ipkSubjectList" style="margin-bottom:1rem;max-height:300px;overflow-y:auto;"></div>
+    <div style="display:flex;gap:0.5rem;margin-bottom:1rem">
+      <button class="btn btn-ghost btn-sm" id="ipkAddRow">+ Tambah Baris</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem;background:var(--primary-container);border-radius:var(--radius-md);margin-bottom:1rem">
+      <span style="font-weight:600">IPK</span>
+      <span id="ipkResult" style="font-size:24px;font-weight:800;color:var(--primary)">0.00</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('ipkModal').classList.remove('open')">Tutup</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="semesterModal" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="modal">
     <h3>Ganti Semester</h3>
@@ -171,6 +220,22 @@
         <option value="13">Semester 13</option>
         <option value="14">Semester 14</option>
       </select>
+    </div>
+    <div style="margin-bottom:0.75rem;padding:0.75rem;background:var(--surface-container);border-radius:var(--radius-md)">
+      <label style="font-size:13px;font-weight:600">Copy Jadwal ke Semester Lain</label>
+      <div style="display:flex;gap:0.5rem;margin-top:0.4rem">
+        <select id="copySemesterSelect" style="flex:1;padding:0.4rem 0.6rem;border:1px solid var(--outline-variant);border-radius:var(--radius-sm);background:var(--surface-container-lowest);font-size:13px">
+          <option value="1">Semester 1</option>
+          <option value="2">Semester 2</option>
+          <option value="3">Semester 3</option>
+          <option value="4">Semester 4</option>
+          <option value="5">Semester 5</option>
+          <option value="6">Semester 6</option>
+          <option value="7">Semester 7</option>
+          <option value="8">Semester 8</option>
+        </select>
+        <button class="btn btn-sm btn-outline" id="copySemesterBtn">Copy</button>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="document.getElementById('semesterModal').classList.remove('open')">Batal</button>
