@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduFlow - Tugas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<link rel="stylesheet" href="assets/css/tasks.css" />
+<link rel="stylesheet" href="assets/css/responsive.css" />
+</head>
+<body data-page="tasks">
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-foot">EduFlow &copy; 2026</div>
+  </aside>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-avatar">E</div>
+        <span class="brand-name">EduFlow</span>
+      </div>
+      <button class="icon-btn" aria-label="Notifikasi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+    </div>
+    <div class="container">
+      <p class="eyebrow">ACADEMIC MOMENTUM</p>
+      <h1 class="page-title">Jadwal Tugasmu</h1>
+
+      <div class="task-stats">
+        <div class="task-stat-card">
+          <div class="task-stat-value" id="taskTotal">0</div>
+          <div class="task-stat-label">Total</div>
+        </div>
+        <div class="task-stat-card">
+          <div class="task-stat-value" id="taskPending" style="color:var(--error)">0</div>
+          <div class="task-stat-label">Pending</div>
+        </div>
+        <div class="task-stat-card">
+          <div class="task-stat-value" id="taskCompleted" style="color:var(--secondary)">0</div>
+          <div class="task-stat-label">Selesai</div>
+        </div>
+      </div>
+
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="searchInput" placeholder="Cari tugas atau mata kuliah..." aria-label="Cari tugas" />
+      </div>
+
+      <div class="filter-bar">
+        <select class="filter-select" data-filter="priority" aria-label="Filter prioritas">
+          <option value="">Prioritas</option>
+          <option value="high">Tinggi</option>
+          <option value="medium">Sedang</option>
+          <option value="low">Rendah</option>
+        </select>
+        <select class="filter-select" data-filter="status" aria-label="Filter status">
+          <option value="">Status</option>
+          <option value="pending">Pending</option>
+          <option value="in_progress">Dikerjakan</option>
+          <option value="completed">Selesai</option>
+        </select>
+        <select class="filter-select" data-filter="category" aria-label="Filter kategori">
+          <option value="">Kategori</option>
+          <option value="Tugas">Tugas</option>
+          <option value="Project">Project</option>
+          <option value="Quiz">Quiz</option>
+          <option value="Membaca">Membaca</option>
+          <option value="Dokumen">Dokumen</option>
+        </select>
+        <select class="sort-select filter-select" aria-label="Urutkan">
+          <option value="deadline">Tenggat</option>
+          <option value="priority">Prioritas</option>
+          <option value="title">Judul</option>
+          <option value="created">Terbaru</option>
+        </select>
+      </div>
+
+      <div class="section-head" style="margin-top:0;">
+        <h2>Pending <span class="badge-count" id="pendingCount">00</span></h2>
+      </div>
+      <div class="stack-gap" id="pendingList"></div>
+
+      <div class="section-head">
+        <h2>Selesai</h2>
+      </div>
+      <div class="stack-gap" id="completedList"></div>
+    </div>
+
+    <button class="fab" id="fabBtn" aria-label="Tambah tugas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+
+    <nav class="bottom-nav"></nav>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="taskModalBackdrop" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h3 id="taskModalTitle">Tambah Tugas</h3>
+    <input type="hidden" id="taskId" />
+    <div class="field">
+      <label>Mata Kuliah</label>
+      <select id="tSubject"></select>
+    </div>
+    <div class="field">
+      <label>Judul Tugas</label>
+      <input type="text" id="tTitle" placeholder="cth: Submit Problem Set 8" />
+    </div>
+    <div class="field">
+      <label>Deskripsi</label>
+      <textarea id="tDesc" placeholder="Detail tugas..."></textarea>
+    </div>
+    <div class="field">
+      <label>Tenggat</label>
+      <input type="datetime-local" id="tDue" />
+    </div>
+    <div class="field">
+      <label>Prioritas</label>
+      <select id="tPriority">
+        <option value="low">Rendah</option>
+        <option value="medium" selected>Sedang</option>
+        <option value="high">Tinggi</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Kategori</label>
+      <select id="tCategory">
+        <option value="">Pilih kategori</option>
+        <option value="Tugas">Tugas</option>
+        <option value="Project">Project</option>
+        <option value="Quiz">Quiz</option>
+        <option value="Membaca">Membaca</option>
+        <option value="Dokumen">Dokumen</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Progress (%)</label>
+      <input type="number" id="tProgress" min="0" max="100" value="0" />
+    </div>
+    <div class="field">
+      <label>Catatan</label>
+      <textarea id="tNotes" placeholder="Catatan tambahan..."></textarea>
+    </div>
+    <div class="field">
+      <label>Link Referensi (pisahkan dengan koma)</label>
+      <input type="text" id="tReference" placeholder="https://..." />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('taskModalBackdrop').classList.remove('open')">Batal</button>
+      <button class="btn btn-primary" id="taskSaveBtn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/app.js" type="module"></script>
+</body>
+</html>

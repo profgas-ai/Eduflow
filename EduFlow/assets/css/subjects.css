@@ -1,0 +1,163 @@
+.semester-tabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.semester-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.subject-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+.subject-card {
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  padding: 0.9rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.subject-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.subject-card .accent-bar {
+  position: absolute;
+  left: 0;
+  top: 0.9rem;
+  bottom: 0.9rem;
+  width: 4px;
+  border-radius: 4px;
+}
+
+.subject-card-inner {
+  padding-left: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.sks-pill {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--primary-container);
+  color: var(--primary-dark);
+  border-radius: var(--radius-full);
+  padding: 0.15rem 0.55rem;
+}
+
+.subject-card .sname {
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.subject-card .scode {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+}
+
+.subject-progress {
+  margin-top: 0.3rem;
+}
+
+.subject-progress .progress-track {
+  height: 4px;
+}
+
+.progress-label {
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  margin-top: 2px;
+  display: block;
+}
+
+.subject-card-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+
+.subject-card-actions .btn {
+  margin-top: 0;
+  flex: 1;
+}
+
+.subject-card-actions .icon-action {
+  flex-shrink: 0;
+}
+
+.subject-add {
+  border: 2px dashed var(--outline-variant);
+  background: transparent;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  color: var(--on-surface-variant);
+  font-size: 13px;
+  cursor: pointer;
+  min-height: 140px;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.subject-add:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.progress-card {
+  background: linear-gradient(135deg, var(--surface-container-lowest), var(--surface-container));
+  border: 1px solid var(--outline-variant);
+  margin-bottom: 1rem;
+}
+
+.progress-card .stat-label {
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+}
+
+.progress-card .big-pct {
+  font-size: 30px;
+  font-weight: 700;
+  margin: 0.25rem 0 0.6rem;
+}
+
+.credit-banner {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 1.1rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.credit-banner .eyebrow {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.credit-banner .big-pct {
+  font-size: 30px;
+  font-weight: 700;
+  margin: 0.2rem 0 0;
+  color: #fff;
+}

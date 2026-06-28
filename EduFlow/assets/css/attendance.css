@@ -1,0 +1,93 @@
+.attendance-summary {
+  margin-bottom: 1.5rem;
+}
+
+.attendance-summary .pct {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.attendance-summary .note {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--on-surface-variant);
+  margin-top: 0.4rem;
+}
+
+.attendance-subject {
+  margin-bottom: 1rem;
+}
+
+.attendance-subject .top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.attendance-subject .sname {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.attendance-subject .smeta {
+  font-size: 13px;
+  color: var(--on-surface-variant);
+}
+
+.attendance-subject .ratio {
+  font-weight: 700;
+  font-size: 15px;
+  text-align: right;
+}
+
+.attendance-subject .pct-right {
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.attendance-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+}
+
+.tip-card {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 1.1rem;
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  margin-top: 1.5rem;
+}
+
+.tip-card .tip-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tip-card h4 {
+  margin: 0 0 0.25rem;
+  font-size: 15px;
+}
+
+.tip-card p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0.95;
+}
+
+.attendance-chart-section {
+  margin-bottom: 1.5rem;
+}

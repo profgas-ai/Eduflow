@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduFlow - Masuk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<link rel="stylesheet" href="assets/css/responsive.css" />
+<style>
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  padding: 1rem;
+}
+.auth-card {
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+}
+.auth-logo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.auth-logo .brand-name {
+  font-size: 28px;
+}
+.auth-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+.auth-subtitle {
+  color: var(--on-surface-variant);
+  font-size: 14px;
+  margin-bottom: 1.5rem;
+}
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 14px;
+  color: var(--on-surface-variant);
+}
+.auth-footer a {
+  font-weight: 600;
+}
+.toggle-link {
+  text-align: right;
+  margin-bottom: 1rem;
+}
+.toggle-link a {
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.password-field {
+  position: relative;
+}
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--on-surface-variant);
+  font-size: 14px;
+}
+.form-error {
+  color: var(--error);
+  font-size: 13px;
+  margin-bottom: 0.75rem;
+  display: none;
+}
+.form-error.show {
+  display: block;
+}
+</style>
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="brand" style="justify-content:center;">
+        <div class="brand-avatar">E</div>
+        <span class="brand-name">EduFlow</span>
+      </div>
+    </div>
+    <h1 class="auth-title" id="authTitle">Masuk</h1>
+    <p class="auth-subtitle" id="authSubtitle">Selamat datang kembali! Masuk ke akun kamu.</p>
+    <div class="form-error" id="formError"></div>
+    <div id="loginForm">
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="nama@email.com" autocomplete="email" />
+      </div>
+      <div class="field password-field">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Masukkan password" autocomplete="current-password" />
+        <button class="password-toggle" id="togglePassword" type="button" aria-label="Tampilkan password">👁</button>
+      </div>
+      <div class="field" style="display:flex;align-items:center;gap:0.5rem;">
+        <input type="checkbox" id="rememberMe" style="width:auto;" />
+        <label for="rememberMe" style="margin:0;font-size:13px;">Ingat saya</label>
+      </div>
+      <div class="toggle-link">
+        <a id="forgotLink">Lupa password?</a>
+      </div>
+      <button class="btn btn-primary btn-block" id="loginBtn">Masuk</button>
+    </div>
+    <div id="registerForm" style="display:none;">
+      <div class="field">
+        <label for="regName">Nama Lengkap</label>
+        <input type="text" id="regName" placeholder="Nama kamu" />
+      </div>
+      <div class="field">
+        <label for="regEmail">Email</label>
+        <input type="email" id="regEmail" placeholder="nama@email.com" />
+      </div>
+      <div class="field password-field">
+        <label for="regPassword">Password</label>
+        <input type="password" id="regPassword" placeholder="Minimal 6 karakter" />
+      </div>
+      <button class="btn btn-primary btn-block" id="registerBtn">Daftar</button>
+    </div>
+    <div id="forgotForm" style="display:none;">
+      <div class="field">
+        <label for="forgotEmail">Email</label>
+        <input type="email" id="forgotEmail" placeholder="nama@email.com" />
+      </div>
+      <button class="btn btn-primary btn-block" id="forgotBtn">Kirim Reset</button>
+    </div>
+    <div class="auth-footer" id="authFooter">
+      Belum punya akun? <a id="switchToRegister">Daftar</a>
+    </div>
+  </div>
+</div>
+<script type="module">
+import { auth } from './assets/js/services/auth.js';
+import { showToast } from './assets/js/components/toast.js';
+import { CONFIG } from './assets/js/config/config.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const forgotForm = document.getElementById('forgotForm');
+  const authFooter = document.getElementById('authFooter');
+  const authTitle = document.getElementById('authTitle');
+  const authSubtitle = document.getElementById('authSubtitle');
+  const formError = document.getElementById('formError');
+  const switchLink = document.getElementById('switchToRegister');
+  const forgotLink = document.getElementById('forgotLink');
+
+  let currentView = 'login';
+
+  function showView(view) {
+    loginForm.style.display = view === 'login' ? 'block' : 'none';
+    registerForm.style.display = view === 'register' ? 'block' : 'none';
+    forgotForm.style.display = view === 'forgot' ? 'block' : 'none';
+    currentView = view;
+
+    if (view === 'login') {
+      authTitle.textContent = 'Masuk';
+      authSubtitle.textContent = 'Selamat datang kembali! Masuk ke akun kamu.';
+      authFooter.innerHTML = 'Belum punya akun? <a id="switchToRegister">Daftar</a>';
+      document.getElementById('switchToRegister')?.addEventListener('click', () => showView('register'));
+      forgotLink.style.display = 'block';
+    } else if (view === 'register') {
+      authTitle.textContent = 'Daftar';
+      authSubtitle.textContent = 'Buat akun baru untuk mulai menggunakan EduFlow.';
+      authFooter.innerHTML = 'Sudah punya akun? <a id="switchToLogin">Masuk</a>';
+      document.getElementById('switchToLogin')?.addEventListener('click', () => showView('login'));
+      forgotLink.style.display = 'none';
+    } else {
+      authTitle.textContent = 'Reset Password';
+      authSubtitle.textContent = 'Masukkan email untuk menerima link reset.';
+      authFooter.innerHTML = 'Kembali ke <a id="switchToLogin">Masuk</a>';
+      document.getElementById('switchToLogin')?.addEventListener('click', () => showView('login'));
+      forgotLink.style.display = 'none';
+    }
+  }
+
+  document.getElementById('switchToRegister')?.addEventListener('click', () => showView('register'));
+  forgotLink?.addEventListener('click', () => showView('forgot'));
+
+  document.getElementById('togglePassword')?.addEventListener('click', () => {
+    const pw = document.getElementById('password');
+    pw.type = pw.type === 'password' ? 'text' : 'password';
+  });
+
+  document.getElementById('loginBtn')?.addEventListener('click', async () => {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    if (!email || !password) {
+      formError.textContent = 'Email dan password wajib diisi';
+      formError.classList.add('show');
+      return;
+    }
+    formError.classList.remove('show');
+    try {
+      await auth.login(email, password);
+      showToast('Berhasil masuk');
+      setTimeout(() => { window.location.href = 'index.html'; }, 300);
+    } catch (e) {
+      formError.textContent = e.message || 'Gagal masuk';
+      formError.classList.add('show');
+    }
+  });
+
+  document.getElementById('registerBtn')?.addEventListener('click', async () => {
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    if (!name || !email || !password) {
+      formError.textContent = 'Lengkapi semua field';
+      formError.classList.add('show');
+      return;
+    }
+    if (password.length < 6) {
+      formError.textContent = 'Password minimal 6 karakter';
+      formError.classList.add('show');
+      return;
+    }
+    formError.classList.remove('show');
+    try {
+      await auth.register(email, password, name);
+      showToast('Pendaftaran berhasil');
+      setTimeout(() => { window.location.href = 'index.html'; }, 300);
+    } catch (e) {
+      formError.textContent = e.message || 'Gagal daftar';
+      formError.classList.add('show');
+    }
+  });
+
+  document.getElementById('forgotBtn')?.addEventListener('click', async () => {
+    const email = document.getElementById('forgotEmail').value.trim();
+    if (!email) {
+      formError.textContent = 'Masukkan email';
+      formError.classList.add('show');
+      return;
+    }
+    formError.classList.remove('show');
+    try {
+      await auth.resetPassword(email);
+      showToast('Link reset dikirim ke email');
+      showView('login');
+    } catch (e) {
+      formError.textContent = e.message || 'Gagal mengirim reset';
+      formError.classList.add('show');
+    }
+  });
+});
+</script>
+</body>
+</html>

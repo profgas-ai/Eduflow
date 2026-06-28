@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduFlow - Presensi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<link rel="stylesheet" href="assets/css/attendance.css" />
+<link rel="stylesheet" href="assets/css/responsive.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>.chart-container canvas{display:block;width:100%!important;height:100%!important;}</style>
+</head>
+<body data-page="attendance">
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-foot">EduFlow &copy; 2026</div>
+  </aside>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-avatar">E</div>
+        <span class="brand-name">EduFlow</span>
+      </div>
+      <button class="icon-btn" aria-label="Notifikasi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+    </div>
+    <div class="container">
+      <p class="eyebrow">MONITORING</p>
+      <h1 class="page-title">Presensi</h1>
+
+      <div class="card attendance-summary">
+        <div class="stat-label">KEHADIRAN KESELURUHAN</div>
+        <div class="pct" id="overallPct">0%</div>
+        <div class="progress-track" style="margin-top:.5rem;"><div class="progress-fill" id="overallFill" style="width:0%"></div></div>
+        <div class="note" id="overallNote"></div>
+      </div>
+
+      <div class="attendance-chart-section">
+        <div class="chart-card">
+          <h4>Grafik Kehadiran</h4>
+          <div class="chart-container" style="height:200px;"><canvas id="attendanceChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <h2>Mata Kuliahku</h2>
+      </div>
+      <div id="attendanceList"></div>
+
+      <div class="tip-card">
+        <div class="tip-icon">💡</div>
+        <div>
+          <h4>Pro-Tip</h4>
+          <p id="tipText">Jaga kehadiran minimal 75% di setiap mata kuliah untuk memenuhi syarat ujian akhir.</p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="bottom-nav"></nav>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="historyModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h3 id="historyTitle">Riwayat Presensi</h3>
+    <div id="historyContainer"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" onclick="document.getElementById('historyModal').classList.remove('open')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.history-item {
+  display:flex; align-items:center; gap:0.5rem;
+  padding:0.6rem 0; border-bottom:1px solid var(--outline-variant);
+}
+.history-info { flex:1; min-width:0; }
+.history-meeting { font-weight:600; font-size:14px; }
+.history-date { font-size:12px; color:var(--on-surface-variant); }
+.history-status {
+  padding:0.35rem 0.5rem; border-radius:var(--radius-md);
+  border:1.5px solid var(--outline-variant);
+  font-family:inherit; font-size:12px; font-weight:600;
+  background:var(--surface-container-low); cursor:pointer;
+}
+</style>
+
+<script src="assets/js/app.js" type="module"></script>
+</body>
+</html>

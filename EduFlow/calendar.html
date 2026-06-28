@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduFlow - Kalender</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<link rel="stylesheet" href="assets/css/calendar.css" />
+<link rel="stylesheet" href="assets/css/responsive.css" />
+</head>
+<body data-page="calendar">
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-foot">EduFlow &copy; 2026</div>
+  </aside>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-avatar">E</div>
+        <span class="brand-name">EduFlow</span>
+      </div>
+      <button class="icon-btn" aria-label="Notifikasi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+    </div>
+    <div class="container">
+      <p class="eyebrow">JADWAL</p>
+      <h1 class="page-title">Kalender Akademik</h1>
+
+      <div class="calendar-header">
+        <div class="calendar-nav">
+          <button class="icon-btn" id="prevMonth" aria-label="Bulan sebelumnya">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <h2 id="currentMonthYear">Januari 2026</h2>
+          <button class="icon-btn" id="nextMonth" aria-label="Bulan berikutnya">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+        <button class="btn btn-outline btn-sm" id="todayBtn">Hari Ini</button>
+      </div>
+
+      <div class="calendar-grid" id="calendarGrid">
+        <div class="cal-day-header">Min</div>
+        <div class="cal-day-header">Sen</div>
+        <div class="cal-day-header">Sel</div>
+        <div class="cal-day-header">Rab</div>
+        <div class="cal-day-header">Kam</div>
+        <div class="cal-day-header">Jum</div>
+        <div class="cal-day-header">Sab</div>
+      </div>
+
+      <div class="day-detail" id="dayDetail">
+        <div class="day-detail-header">
+          <h3>Detail</h3>
+          <div>
+            <span id="dayDetailSubtitle" style="font-size:13px;color:var(--on-surface-variant);margin-right:0.5rem;"></span>
+            <button class="icon-btn" id="closeDayDetail" aria-label="Tutup detail">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+        <div id="dayDetailList"></div>
+      </div>
+    </div>
+
+    <nav class="bottom-nav"></nav>
+  </div>
+</div>
+
+<script src="assets/js/app.js" type="module"></script>
+</body>
+</html>

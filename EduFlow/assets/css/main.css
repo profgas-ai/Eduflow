@@ -1,0 +1,101 @@
+:root {
+  --surface: #f8f9fa;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f3f4f5;
+  --surface-container: #edeeef;
+  --surface-container-high: #e7e8e9;
+  --on-surface: #191c1d;
+  --on-surface-variant: #5b5a6b;
+  --outline: #9b99ab;
+  --outline-variant: #e1dfee;
+  --primary: #4f46e5;
+  --primary-dark: #3525cd;
+  --on-primary: #ffffff;
+  --primary-container: #e2dfff;
+  --secondary: #006c49;
+  --secondary-container: #6cf8bb;
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+  --tertiary: #a44100;
+  --tertiary-container: #ffd2be;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+  --shadow-fab: 0 4px 12px rgba(79, 70, 229, 0.28);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+}
+
+[data-theme="dark"] {
+  --surface: #0e1111;
+  --surface-container-lowest: #181a1b;
+  --surface-container-low: #1e2021;
+  --surface-container: #242627;
+  --surface-container-high: #2a2c2d;
+  --on-surface: #e2e2e6;
+  --on-surface-variant: #a2a2b0;
+  --outline: #797888;
+  --outline-variant: #33333f;
+  --primary: #b0a8ff;
+  --primary-dark: #d0cbff;
+  --on-primary: #1e1060;
+  --primary-container: #3e34b0;
+  --secondary: #6cf8bb;
+  --secondary-container: #005239;
+  --error: #ffb4ab;
+  --error-container: #93000a;
+  --tertiary: #ffb690;
+  --tertiary-container: #783500;
+  --shadow-fab: 0 4px 12px rgba(176, 168, 255, 0.2);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--surface);
+  color: var(--on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+button {
+  font-family: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}

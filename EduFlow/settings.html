@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduFlow - Pengaturan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<link rel="stylesheet" href="assets/css/responsive.css" />
+<style>
+.settings-section {
+  margin-bottom: 2rem;
+}
+.settings-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+.settings-section .desc {
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  margin-bottom: 1rem;
+}
+.settings-card {
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--primary-container);
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+}
+.theme-options {
+  display: flex;
+  gap: 0.75rem;
+}
+.theme-option {
+  flex: 1;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--outline-variant);
+  background: var(--surface-container-lowest);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+.theme-option:hover {
+  border-color: var(--primary);
+}
+.theme-option.active {
+  border-color: var(--primary);
+  background: var(--primary-container);
+}
+.theme-option-icon {
+  font-size: 24px;
+  margin-bottom: 0.3rem;
+}
+.theme-option-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+.storage-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.storage-item {
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--surface-container);
+  border-radius: var(--radius-md);
+}
+.storage-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+}
+.storage-label {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+}
+.danger-zone {
+  border: 1px solid var(--error-container);
+  background: var(--error-container);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+}
+.danger-zone h3 {
+  color: var(--error);
+  margin-bottom: 0.25rem;
+}
+</style>
+</head>
+<body data-page="settings">
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-foot">EduFlow &copy; 2026</div>
+  </aside>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-avatar">E</div>
+        <span class="brand-name">EduFlow</span>
+      </div>
+      <button class="icon-btn" aria-label="Notifikasi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+    </div>
+    <div class="container">
+      <p class="eyebrow">PERSONAL</p>
+      <h1 class="page-title">Pengaturan</h1>
+
+      <div class="settings-section">
+        <h2>Profil</h2>
+        <p class="desc">Informasi dasar akun kamu</p>
+        <div class="settings-card">
+          <div class="avatar-section">
+            <div id="settingsAvatar"></div>
+            <div>
+              <button class="btn btn-outline btn-sm" id="avatarUploadBtn">Upload Foto</button>
+              <input type="file" id="avatarInput" accept="image/*" style="display:none;" />
+              <p style="font-size:12px;color:var(--on-surface-variant);margin-top:0.3rem;">Format: JPG, PNG. Maks 2MB</p>
+            </div>
+          </div>
+          <div class="field">
+            <label>Nama Lengkap</label>
+            <input type="text" id="settingsName" placeholder="Nama kamu" />
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="settingsEmail" placeholder="email@univ.ac.id" />
+          </div>
+          <div class="field">
+            <label>Program Studi</label>
+            <input type="text" id="settingsStudyProgram" placeholder="Informatika" />
+          </div>
+          <div class="field">
+            <label>Universitas</label>
+            <input type="text" id="settingsUniversity" placeholder="Universitas" />
+          </div>
+          <div class="field">
+            <label>Semester Aktif</label>
+            <input type="number" id="settingsSemester" min="1" max="14" />
+          </div>
+          <button class="btn btn-primary" id="saveProfileBtn">Simpan Profil</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h2>Tampilan</h2>
+        <p class="desc">Sesuaikan tema dan bahasa</p>
+        <div class="settings-card">
+          <div class="field">
+            <label>Tema</label>
+            <select id="settingsTheme">
+              <option value="system">System</option>
+              <option value="light">Terang</option>
+              <option value="dark">Gelap</option>
+            </select>
+          </div>
+          <div class="theme-options" style="margin-top:0.75rem;">
+            <div class="theme-option" data-theme="light">
+              <div class="theme-option-icon">☀️</div>
+              <div class="theme-option-label">Terang</div>
+            </div>
+            <div class="theme-option" data-theme="dark">
+              <div class="theme-option-icon">🌙</div>
+              <div class="theme-option-label">Gelap</div>
+            </div>
+            <div class="theme-option" data-theme="system">
+              <div class="theme-option-icon">💻</div>
+              <div class="theme-option-label">System</div>
+            </div>
+          </div>
+          <div class="field" style="margin-top:0.75rem;">
+            <label>Bahasa</label>
+            <select id="settingsLanguage">
+              <option value="id">Bahasa Indonesia</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="saveAppearanceBtn" style="margin-top:0.75rem;">Simpan Tampilan</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h2>Data & Storage</h2>
+        <p class="desc">Kelola data aplikasi</p>
+        <div class="settings-card">
+          <div class="storage-info">
+            <div class="storage-item">
+              <div class="storage-value" id="storageSubjects">0</div>
+              <div class="storage-label">Mata Kuliah</div>
+            </div>
+            <div class="storage-item">
+              <div class="storage-value" id="storageTasks">0</div>
+              <div class="storage-label">Tugas</div>
+            </div>
+            <div class="storage-item">
+              <div class="storage-value" id="storageSize">0 KB</div>
+              <div class="storage-label">Ukuran Data</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" id="exportBtn">Export JSON</button>
+            <button class="btn btn-outline btn-sm" id="importBtn">Import JSON</button>
+            <input type="file" id="importFile" accept=".json" style="display:none;" />
+          </div>
+        </div>
+      </div>
+
+      <div class="danger-zone">
+        <h3>Zona Berbahaya</h3>
+        <p style="font-size:13px;margin:0.25rem 0 0.75rem;">Tindakan ini tidak dapat dibatalkan.</p>
+        <button class="btn btn-error" id="clearDataBtn">Hapus Semua Data</button>
+      </div>
+    </div>
+
+    <nav class="bottom-nav"></nav>
+  </div>
+</div>
+
+<script src="assets/js/app.js" type="module"></script>
+</body>
+</html>

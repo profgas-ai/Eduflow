@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduFlow - Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<link rel="stylesheet" href="assets/css/dashboard.css" />
+<link rel="stylesheet" href="assets/css/tasks.css" />
+<link rel="stylesheet" href="assets/css/responsive.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>.chart-container canvas{display:block;width:100%!important;height:100%!important;}</style>
+</head>
+<body data-page="home">
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-foot">EduFlow &copy; 2026</div>
+  </aside>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-avatar">E</div>
+        <span class="brand-name">EduFlow</span>
+      </div>
+      <button class="icon-btn" aria-label="Notifikasi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notification-badge" style="position:absolute;top:-2px;right:-2px;background:var(--error);color:#fff;font-size:10px;border-radius:50%;width:16px;height:16px;display:none;align-items:center;justify-content:center;"></span>
+      </button>
+    </div>
+    <div class="container">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <p class="eyebrow" id="greeting">SELAMAT DATANG</p>
+          <h1 class="page-title" id="greetingTitle">Siap untuk fokus?</h1>
+        </div>
+        <div style="text-align:right;">
+          <div class="clock-display" id="realtimeClock"></div>
+          <div class="date-display" id="currentDate"></div>
+        </div>
+      </div>
+
+      <div class="quick-stats" id="quickStats">
+        <div class="quick-stat" style="cursor:pointer;" onclick="document.getElementById('semesterModal').classList.add('open')" title="Klik untuk ganti semester">
+          <div class="quick-stat-value" id="currentSemester">Semester 5</div>
+          <div class="quick-stat-label">Semester Aktif ↻</div>
+        </div>
+        <div class="quick-stat">
+          <div class="quick-stat-value" id="totalSksDisplay">0 SKS</div>
+          <div class="quick-stat-label">Total SKS</div>
+        </div>
+        <div class="quick-stat">
+          <div class="quick-stat-value" id="tasksPending">0</div>
+          <div class="quick-stat-label">Tugas Pending</div>
+        </div>
+        <div class="quick-stat">
+          <div class="quick-stat-value" id="tasksCompleted">0</div>
+          <div class="quick-stat-label">Tugas Selesai</div>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="card stat-card">
+          <div class="stat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <div class="stat-label">Tugas Hari Ini</div>
+          <div class="stat-value"><span id="tasksDueToday">0</span> <small>tersisa</small></div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-icon" style="color:var(--secondary)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <div class="stat-label">Kehadiran</div>
+          <div class="stat-value"><span id="attendancePct">0%</span></div>
+        </div>
+      </div>
+
+      <div class="momentum-card">
+        <div style="flex:1;">
+          <h3>Academic Momentum</h3>
+          <p id="momentumText">Memuat progres mingguan...</p>
+          <div class="momentum-stats">
+            <div class="momentum-pct" id="momentumPct">0%</div>
+            <div class="momentum-progress" style="flex:1;">
+              <div class="progress-track"><div class="progress-fill" id="momentumFill" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h4>Progress Tugas</h4>
+          <div class="chart-container"><canvas id="taskChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h4>Kehadiran</h4>
+          <div class="chart-container"><canvas id="attendanceChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h4>Aktivitas Mingguan</h4>
+          <div class="chart-container"><canvas id="productivityChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <h2>Jadwal Hari Ini</h2>
+        <a class="link-btn" href="subjects.html">Lihat Semua</a>
+      </div>
+      <div class="stack-gap" id="classList"></div>
+
+      <div class="section-head">
+        <h2>Tugas Terdekat</h2>
+        <a class="link-btn" href="tasks.html">Lihat Semua</a>
+      </div>
+      <div class="stack-gap" id="upcomingTasks"></div>
+    </div>
+
+    <button class="fab" id="fabBtn" aria-label="Tambah tugas cepat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+
+    <nav class="bottom-nav"></nav>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="quickAddBackdrop" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h3>Tambah Tugas Cepat</h3>
+    <div class="field">
+      <label>Mata Kuliah</label>
+      <select id="qaSubject"></select>
+    </div>
+    <div class="field">
+      <label>Judul Tugas</label>
+      <input type="text" id="qaTitle" placeholder="cth: Kerjakan Soal Bab 4" />
+    </div>
+    <div class="field">
+      <label>Tenggat</label>
+      <input type="datetime-local" id="qaDue" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('quickAddBackdrop').classList.remove('open')">Batal</button>
+      <button class="btn btn-primary" id="qaSaveBtn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="semesterModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h3>Ganti Semester</h3>
+    <p style="font-size:14px;color:var(--on-surface-variant);margin-bottom:1rem;">Pilih semester untuk menampilkan mata kuliah yang sesuai.</p>
+    <div class="field">
+      <label>Semester Aktif</label>
+      <select id="semesterSelect">
+        <option value="1">Semester 1</option>
+        <option value="2">Semester 2</option>
+        <option value="3">Semester 3</option>
+        <option value="4">Semester 4</option>
+        <option value="5">Semester 5</option>
+        <option value="6">Semester 6</option>
+        <option value="7">Semester 7</option>
+        <option value="8">Semester 8</option>
+        <option value="9">Semester 9</option>
+        <option value="10">Semester 10</option>
+        <option value="11">Semester 11</option>
+        <option value="12">Semester 12</option>
+        <option value="13">Semester 13</option>
+        <option value="14">Semester 14</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('semesterModal').classList.remove('open')">Batal</button>
+      <button class="btn btn-primary" id="semesterSaveBtn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/app.js" type="module"></script>
+</body>
+</html>

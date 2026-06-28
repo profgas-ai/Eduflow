@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduFlow - Catatan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<link rel="stylesheet" href="assets/css/responsive.css" />
+<style>
+.notes-header {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.notes-header .search-box {
+  flex: 1;
+  margin-bottom: 0;
+  min-width: 200px;
+}
+.notes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.note-card {
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  cursor: default;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.note-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+.note-card.pinned {
+  border-color: var(--primary);
+}
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.4rem;
+}
+.note-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+}
+.note-pin {
+  font-size: 14px;
+}
+.note-preview {
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.note-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  flex-wrap: wrap;
+}
+.note-tag {
+  background: var(--primary-container);
+  color: var(--primary-dark);
+  border-radius: var(--radius-full);
+  padding: 0.1rem 0.45rem;
+  font-size: 11px;
+  font-weight: 600;
+}
+.note-actions {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+.subject-filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  margin-bottom: 1rem;
+}
+.subject-filter-bar::-webkit-scrollbar {
+  display: none;
+}
+@media (max-width: 600px) {
+  .notes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body data-page="notes">
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-foot">EduFlow &copy; 2026</div>
+  </aside>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-avatar">E</div>
+        <span class="brand-name">EduFlow</span>
+      </div>
+      <button class="icon-btn" aria-label="Notifikasi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+    </div>
+    <div class="container">
+      <p class="eyebrow">BELAJAR</p>
+      <h1 class="page-title">Catatan</h1>
+
+      <div class="notes-header">
+        <div class="search-box" style="margin-bottom:0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="notesSearch" placeholder="Cari catatan..." />
+        </div>
+      </div>
+
+      <div class="subject-filter-bar" id="notesSubjectFilter"></div>
+
+      <div class="notes-grid" id="notesList"></div>
+    </div>
+
+    <button class="fab" id="fabBtn" aria-label="Tambah catatan">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+
+    <nav class="bottom-nav"></nav>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="noteModalBackdrop" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h3 id="noteModalTitle">Buat Catatan</h3>
+    <input type="hidden" id="noteId" />
+    <div class="field">
+      <label>Judul</label>
+      <input type="text" id="noteTitle" placeholder="Judul catatan" />
+    </div>
+    <div class="field">
+      <label>Mata Kuliah</label>
+      <select id="noteSubject"></select>
+    </div>
+    <div class="field">
+      <label>Konten (Markdown didukung)</label>
+      <textarea id="noteContent" rows="8" placeholder="# Judul&#10;&#10;Tulis catatan kamu di sini..."></textarea>
+    </div>
+    <div class="field">
+      <label>Tag (pisahkan dengan koma)</label>
+      <input type="text" id="noteTags" placeholder="algoritma, pemrograman" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('noteModalBackdrop').classList.remove('open')">Batal</button>
+      <button class="btn btn-primary" id="noteSaveBtn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/app.js" type="module"></script>
+</body>
+</html>
