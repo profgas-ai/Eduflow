@@ -1,4 +1,4 @@
-import { loadData, setStorageSuffix } from './services/storage.js';
+import { loadData, setStorageSuffix, setSyncCallback, loadFromRemote } from './services/storage.js';
 import { auth } from './services/auth.js';
 import { db } from './services/database.js';
 import { notifier } from './services/notification.js';
@@ -14,8 +14,9 @@ import { renderBottomNav, setActiveNav } from './components/navbar.js';
     window.location.href = 'login.html';
     return;
   }
-  await loadData();
   await db.init();
+  await loadData();
+  setupSync();
   setupModalBackdropClose();
 
   const page = document.body.dataset.page || 'home';
@@ -82,5 +83,37 @@ function updateNotificationBadge() {
   document.querySelectorAll('.notification-badge').forEach(el => {
     el.textContent = unread > 9 ? '9+' : unread || '';
     el.style.display = unread > 0 ? 'flex' : 'none';
+  });
+}
+
+async function setupSync() {
+  if (!db.isOnline() || !auth.currentUser?.email) return;
+
+  try {
+    const remote = await loadFromRemote(async () => {
+      const { data, error } = await db.supabase
+        .from('user_data')
+        .select('data')
+        .eq('user_email', auth.currentUser.email)
+        .single();
+      if (error || !data) return null;
+      return typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
+    });
+    if (remote) console.log('Data loaded from Supabase');
+    else console.log('No remote data, using local');
+  } catch (e) {
+    console.warn('Supabase load failed:', e.message);
+  }
+
+  setSyncCallback(async (data) => {
+    try {
+      const json = JSON.stringify(data);
+      await db.supabase.from('user_data').upsert(
+        { user_email: auth.currentUser.email, data: json, updated_at: new Date().toISOString() },
+        { onConflict: 'user_email' }
+      );
+    } catch (e) {
+      console.warn('Supabase sync failed:', e.message);
+    }
   });
 }

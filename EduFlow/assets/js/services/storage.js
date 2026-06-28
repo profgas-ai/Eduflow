@@ -3,6 +3,7 @@ import { createDummyData } from '../data/dummyData.js';
 
 let dataCache = null;
 let storageSuffix = '';
+let syncCallback = null;
 
 export function setStorageSuffix(suffix) {
   if (suffix === storageSuffix && dataCache) return;
@@ -111,8 +112,26 @@ export function getData() {
 }
 
 export function persist() {
-  if (dataCache) return saveData(dataCache);
+  if (dataCache) {
+    const ret = saveData(dataCache);
+    if (syncCallback) syncCallback(dataCache);
+    return ret;
+  }
   return false;
+}
+
+export function setSyncCallback(fn) {
+  syncCallback = fn;
+}
+
+export async function loadFromRemote(loaderFn) {
+  const remote = await loaderFn();
+  if (remote) {
+    dataCache = remote;
+    saveData(remote);
+    return remote;
+  }
+  return null;
 }
 
 export async function exportData() {
