@@ -2,7 +2,7 @@ export const CONFIG = {
   APP_NAME: 'EduFlow',
   APP_VERSION: '2.0.0',
   STORAGE_KEY: 'eduflow_data_v2',
-  SUPABASE_URL: 'https://wlhictgblrypiusdepc.supabase.co',
+  SUPABASE_URL: 'https://wlhicdtgblrypiusdepc.supabase.co',
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsaGljZHRnYmxyeXBpdXNkZXBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1ODY3NDQsImV4cCI6MjA5ODE2Mjc0NH0.sjO5eOvQqBvznhfMi4JsipAUxfbg-DrAX7eaRYMIkxY',
   THEME: {
     LIGHT: 'light',
