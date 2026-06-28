@@ -2,13 +2,24 @@ import { CONFIG } from '../config/config.js';
 import { createDummyData } from '../data/dummyData.js';
 
 let dataCache = null;
+let storageSuffix = '';
+
+export function setStorageSuffix(suffix) {
+  if (suffix === storageSuffix && dataCache) return;
+  storageSuffix = suffix || '';
+  dataCache = null;
+}
+
+function storageKey() {
+  return CONFIG.STORAGE_KEY + (storageSuffix ? '_' + storageSuffix : '');
+}
 
 export function loadData() {
   if (dataCache) return dataCache;
 
   let raw;
   try {
-    raw = localStorage.getItem(CONFIG.STORAGE_KEY);
+    raw = localStorage.getItem(storageKey());
   } catch {
     raw = null;
   }
@@ -33,7 +44,7 @@ export function loadData() {
 
 export function saveData(data) {
   try {
-    localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(storageKey(), JSON.stringify(data));
     dataCache = data;
     return true;
   } catch {
@@ -81,7 +92,7 @@ export function importData(jsonString) {
 }
 
 export function clearData() {
-  localStorage.removeItem(CONFIG.STORAGE_KEY);
+  localStorage.removeItem(storageKey());
   dataCache = null;
 }
 

@@ -1,4 +1,4 @@
-import { loadData } from './services/storage.js';
+import { loadData, setStorageSuffix } from './services/storage.js';
 import { auth } from './services/auth.js';
 import { db } from './services/database.js';
 import { notifier } from './services/notification.js';
@@ -7,12 +7,14 @@ import { renderSidebar } from './components/sidebar.js';
 import { renderBottomNav, setActiveNav } from './components/navbar.js';
 
 (async function init() {
-  loadData();
   await auth.init();
+  const userSuffix = auth.currentUser?.id === 'local' ? auth.currentUser?.email : (auth.currentUser?.id || '');
+  setStorageSuffix(userSuffix);
   if (!auth.isAuthenticated) {
     window.location.href = 'login.html';
     return;
   }
+  loadData();
   await db.init();
   setupModalBackdropClose();
 
