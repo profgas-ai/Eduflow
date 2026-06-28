@@ -1,4 +1,4 @@
-import { loadData, setStorageSuffix, setSyncCallback, loadFromRemote } from './services/storage.js';
+import { loadData, setStorageSuffix, setSyncCallback, loadFromRemote, getData, persist } from './services/storage.js';
 import { auth } from './services/auth.js';
 import { db } from './services/database.js';
 import { notifier } from './services/notification.js';
@@ -116,4 +116,9 @@ async function setupSync() {
       console.warn('Supabase sync failed:', e.message);
     }
   });
+
+  const currentData = getData();
+  if (currentData.subjects?.length || currentData.tasks?.length) {
+    persist();
+  }
 }
