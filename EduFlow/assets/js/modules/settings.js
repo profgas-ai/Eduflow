@@ -30,8 +30,8 @@ export function initSettings() {
     }
   }
 
-  function updateStorageInfo() {
-    const info = getStorageInfo();
+  async function updateStorageInfo() {
+    const info = await getStorageInfo();
     setText('storageSubjects', info.subjects);
     setText('storageTasks', info.tasks);
     setText('storageSize', info.sizeKB + ' KB');
@@ -72,8 +72,8 @@ export function initSettings() {
     );
   }
 
-  function handleExport() {
-    exportData();
+  async function handleExport() {
+    await exportData();
     showToast('Data berhasil diexport');
   }
 
@@ -84,8 +84,8 @@ export function initSettings() {
       return;
     }
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = importData(e.target.result);
+    reader.onload = async (e) => {
+      const result = await importData(e.target.result);
       if (result) {
         showToast('Data berhasil diimport');
         setTimeout(() => location.reload(), 1000);
@@ -96,9 +96,9 @@ export function initSettings() {
     reader.readAsText(input.files[0]);
   }
 
-  function handleClearData() {
+  async function handleClearData() {
     if (confirm('Yakin ingin menghapus semua data? Tindakan ini tidak dapat dibatalkan.')) {
-      clearData();
+      await clearData();
       showToast('Data dihapus');
       setTimeout(() => location.reload(), 1000);
     }

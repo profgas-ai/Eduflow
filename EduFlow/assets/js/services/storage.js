@@ -14,58 +14,108 @@ function storageKey() {
   return CONFIG.STORAGE_KEY + (storageSuffix ? '_' + storageSuffix : '');
 }
 
-export function loadData() {
+function idbStore(mode) {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(storageKey(), 1);
+    req.onupgradeneeded = () => req.result.createObjectStore('data', { keyPath: 'k' });
+    req.onsuccess = () => resolve(req.result.transaction('data', mode).objectStore('data'));
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function idbGet() {
+  return idbStore('readonly').then(store => new Promise((resolve, reject) => {
+    const r = store.get('main');
+    r.onsuccess = () => resolve(r.result?.v);
+    r.onerror = () => reject(r.error);
+  })).catch(() => null);
+}
+
+function idbPut(val) {
+  return idbStore('readwrite').then(store => new Promise((resolve, reject) => {
+    const r = store.put({ k: 'main', v: val });
+    r.onsuccess = () => resolve();
+    r.onerror = () => reject(r.error);
+  })).catch(() => {});
+}
+
+function idbRemove() {
+  return idbStore('readwrite').then(store => new Promise((resolve, reject) => {
+    const r = store.delete('main');
+    r.onsuccess = () => resolve();
+    r.onerror = () => reject(r.error);
+  })).catch(() => {});
+}
+
+function idbClearAll() {
+  return idbStore('readwrite').then(store => new Promise((resolve, reject) => {
+    const r = store.clear();
+    r.onsuccess = () => resolve();
+    r.onerror = () => reject(r.error);
+  })).catch(() => {});
+}
+
+async function loadFromIDB() {
+  const raw = await idbGet();
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+export async function loadData() {
   if (dataCache) return dataCache;
 
+  let data = await loadFromIDB();
+  if (data) {
+    dataCache = data;
+    localStorage.setItem(storageKey(), JSON.stringify(data));
+    return data;
+  }
+
   let raw;
-  try {
-    raw = localStorage.getItem(storageKey());
-  } catch {
-    raw = null;
+  try { raw = localStorage.getItem(storageKey()); } catch { raw = null; }
+
+  if (raw) {
+    try {
+      data = JSON.parse(raw);
+      dataCache = data;
+      idbPut(raw);
+      return data;
+    } catch { raw = null; }
   }
 
-  if (!raw) {
-    const seed = createDummyData();
-    saveData(seed);
-    dataCache = seed;
-    return seed;
-  }
-
-  try {
-    dataCache = JSON.parse(raw);
-    return dataCache;
-  } catch {
-    const seed = createDummyData();
-    saveData(seed);
-    dataCache = seed;
-    return seed;
-  }
+  const seed = createDummyData();
+  dataCache = seed;
+  const json = JSON.stringify(seed);
+  localStorage.setItem(storageKey(), json);
+  idbPut(json);
+  return seed;
 }
 
 export function saveData(data) {
-  try {
-    localStorage.setItem(storageKey(), JSON.stringify(data));
-    dataCache = data;
-    return true;
-  } catch {
-    console.warn('Failed to save data to localStorage');
-    return false;
-  }
+  dataCache = data;
+  const json = JSON.stringify(data);
+  try { localStorage.setItem(storageKey(), json); } catch {}
+  idbPut(json);
+  return true;
 }
 
 export function getData() {
-  if (!dataCache) return loadData();
+  if (!dataCache) {
+    try {
+      const raw = localStorage.getItem(storageKey());
+      if (raw) { dataCache = JSON.parse(raw); return dataCache; }
+    } catch {}
+    return createDummyData();
+  }
   return dataCache;
 }
 
 export function persist() {
-  if (dataCache) {
-    return saveData(dataCache);
-  }
+  if (dataCache) return saveData(dataCache);
   return false;
 }
 
-export function exportData() {
+export async function exportData() {
   const data = getData();
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -76,12 +126,10 @@ export function exportData() {
   URL.revokeObjectURL(url);
 }
 
-export function importData(jsonString) {
+export async function importData(jsonString) {
   try {
     const data = JSON.parse(jsonString);
-    if (!data.user || !data.subjects) {
-      throw new Error('Format data tidak valid');
-    }
+    if (!data.user || !data.subjects) throw new Error('Format data tidak valid');
     saveData(data);
     dataCache = data;
     return true;
@@ -91,20 +139,15 @@ export function importData(jsonString) {
   }
 }
 
-export function clearData() {
+export async function clearData() {
   localStorage.removeItem(storageKey());
+  await idbClearAll();
   dataCache = null;
 }
 
-export function getStorageInfo() {
+export async function getStorageInfo() {
   const data = getData();
   const json = JSON.stringify(data);
   const bytes = new TextEncoder().encode(json).length;
-  return {
-    keys: Object.keys(data).length,
-    subjects: data.subjects.length,
-    tasks: data.tasks.length,
-    sizeBytes: bytes,
-    sizeKB: (bytes / 1024).toFixed(1),
-  };
+  return { keys: Object.keys(data).length, subjects: data.subjects.length, tasks: data.tasks.length, sizeBytes: bytes, sizeKB: (bytes / 1024).toFixed(1) };
 }

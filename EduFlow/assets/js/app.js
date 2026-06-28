@@ -14,7 +14,7 @@ import { renderBottomNav, setActiveNav } from './components/navbar.js';
     window.location.href = 'login.html';
     return;
   }
-  loadData();
+  await loadData();
   await db.init();
   setupModalBackdropClose();
 
