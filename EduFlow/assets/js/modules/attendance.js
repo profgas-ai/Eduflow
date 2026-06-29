@@ -1,6 +1,7 @@
-import { getData, persist } from '../services/storage.js';
+import { getData } from '../services/storage.js';
 import { db } from '../services/database.js';
 import { escapeHtml, generateId } from '../utils/helper.js';
+import { createAttendanceCard } from '../components/card.js';
 import { showToast } from '../components/toast.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { CONFIG } from '../config/config.js';
@@ -19,7 +20,6 @@ export function initAttendance() {
   async function render() {
     const subjects = data.subjects || [];
     recalcAttendance(subjects);
-    persist();
 
     let totalSessions = 0, totalPresent = 0;
     subjects.forEach(s => {

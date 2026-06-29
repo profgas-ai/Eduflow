@@ -153,6 +153,18 @@ function renderNotifications() {
 async function setupSync() {
   if (!db.isOnline() || !auth.currentUser?.email) return;
 
+  setSyncCallback(async (data) => {
+    try {
+      const json = JSON.stringify(data);
+      await db.supabase.from('user_data').upsert(
+        { user_email: auth.currentUser.email, data: json, updated_at: new Date().toISOString() },
+        { onConflict: 'user_email' }
+      );
+    } catch (e) {
+      console.warn('Supabase sync failed:', e.message);
+    }
+  });
+
   const localData = getData();
   const hasLocalData = localData.subjects?.length || localData.tasks?.length;
 
@@ -175,18 +187,6 @@ async function setupSync() {
   } else {
     console.log('Local data exists, skipping remote load');
   }
-
-  setSyncCallback(async (data) => {
-    try {
-      const json = JSON.stringify(data);
-      await db.supabase.from('user_data').upsert(
-        { user_email: auth.currentUser.email, data: json, updated_at: new Date().toISOString() },
-        { onConflict: 'user_email' }
-      );
-    } catch (e) {
-      console.warn('Supabase sync failed:', e.message);
-    }
-  });
 
   if (hasLocalData) {
     persist();

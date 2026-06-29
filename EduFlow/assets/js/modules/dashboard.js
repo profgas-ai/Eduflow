@@ -416,9 +416,10 @@ function setupClickableStats() {
 }
 
 function showOnboarding(data) {
+  if (localStorage.getItem('eduflow_onboarded')) return;
   const hasSubjects = (data.subjects || []).length > 0;
   const hasTasks = (data.tasks || []).length > 0;
-  if (hasSubjects || hasTasks) return;
+  if (hasSubjects || hasTasks) { localStorage.setItem('eduflow_onboarded', '1'); return; }
 
   const backdrop = document.getElementById('onboardingBackdrop');
   if (!backdrop) return;
@@ -432,6 +433,11 @@ function showOnboarding(data) {
     { title: 'Kelola Tugas & Presensi', desc: 'Pantau tenggat tugas dan catat kehadiran setiap pertemuan.', btn: 'Mulai Belajar!' },
   ];
 
+  function dismiss() {
+    backdrop.classList.remove('open');
+    localStorage.setItem('eduflow_onboarded', '1');
+  }
+
   function renderStep() {
     const s = steps[step];
     backdrop.querySelector('.onboarding-title').textContent = s.title;
@@ -444,18 +450,13 @@ function showOnboarding(data) {
 
   backdrop.querySelector('.onboarding-btn').addEventListener('click', () => {
     const link = backdrop.querySelector('.onboarding-btn').dataset.link;
-    if (link) { window.location.href = link; return; }
+    if (link) { dismiss(); window.location.href = link; return; }
     step++;
-    if (step >= steps.length) {
-      backdrop.classList.remove('open');
-      return;
-    }
+    if (step >= steps.length) { dismiss(); return; }
     renderStep();
   });
 
-  backdrop.querySelector('.onboarding-skip')?.addEventListener('click', () => {
-    backdrop.classList.remove('open');
-  });
+  backdrop.querySelector('.onboarding-skip')?.addEventListener('click', dismiss);
 
   renderStep();
 }

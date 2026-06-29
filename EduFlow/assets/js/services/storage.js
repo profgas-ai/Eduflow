@@ -164,7 +164,10 @@ export async function exportData() {
 export async function importData(jsonString) {
   try {
     const data = JSON.parse(jsonString);
-    if (!data.user || !data.subjects) throw new Error('Format data tidak valid');
+    if (!data.user || !Array.isArray(data.subjects)) throw new Error('Format data tidak valid');
+    if (data.subjects.some(s => !s.id || !s.name || !s.code)) throw new Error('Data subjects tidak lengkap');
+    if (!Array.isArray(data.tasks)) data.tasks = [];
+    if (!data.notifications) data.notifications = [];
     saveData(data);
     dataCache = data;
     return true;

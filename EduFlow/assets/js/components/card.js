@@ -69,8 +69,10 @@ export function createAttendanceCard(subject) {
   const pct = subject.totalSessions > 0 ? Math.round((subject.present / subject.totalSessions) * 100) : 0;
   const color = pct >= 85 ? 'var(--secondary)' : pct >= 75 ? 'var(--primary)' : 'var(--error)';
   let alphaRemaining = '';
-  if (subject.totalSessions > 0 && subject.present > 0) {
-    const maxAbsent = Math.floor((subject.present / 0.75) - subject.totalSessions);
+  if (subject.totalSessions > 0) {
+    const allowedMiss = Math.floor(subject.totalSessions * 0.25);
+    const missed = subject.totalSessions - subject.present;
+    const maxAbsent = allowedMiss - missed;
     if (maxAbsent >= 0) alphaRemaining = `<span class="alpha-remaining">Sisa alpha: ${maxAbsent}x</span>`;
     else alphaRemaining = `<span class="alpha-remaining" style="color:var(--error)">Kehadiran di bawah 75%</span>`;
   }
