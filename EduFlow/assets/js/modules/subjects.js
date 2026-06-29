@@ -1,4 +1,4 @@
-import { getData } from '../services/storage.js';
+import { getData, persist } from '../services/storage.js';
 import { db } from '../services/database.js';
 import { escapeHtml, generateId, sanitizeInput } from '../utils/helper.js';
 import { createSubjectCard } from '../components/card.js';
@@ -216,7 +216,6 @@ export function initSubjects() {
       showToast('Mata kuliah ditambahkan');
       activeSemester = semester;
     }
-    closeModal('subjectModalBackdrop');
     closeModal('subjectModalBackdrop');
     render();
   }

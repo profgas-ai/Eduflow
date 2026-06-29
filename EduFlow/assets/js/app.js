@@ -80,9 +80,7 @@ import { renderBottomNav, setActiveNav } from './components/navbar.js';
 })();
 
 function applySavedTheme() {
-  const key = 'eduflow_data_v2' + (auth.currentUser?.id ? '_' + auth.currentUser.id : '');
-  const raw = localStorage.getItem(key);
-  const data = raw ? JSON.parse(raw) : {};
+  const data = getData();
   const theme = data.user?.theme || data.settings?.theme || 'system';
   if (theme === 'system') {
     document.documentElement.setAttribute('data-theme',
@@ -104,9 +102,20 @@ function updateNotificationBadge() {
 function setupNotificationPanel() {
   const btn = document.querySelector('.icon-btn[aria-label="Notifikasi"]');
   if (!btn) return;
+  let modal = document.getElementById('notifModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-backdrop';
+    modal.id = 'notifModal';
+    modal.setAttribute('aria-hidden', 'true');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.innerHTML = '<div class="modal" style="max-width:420px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="margin:0">Notifikasi</h3><button class="btn btn-ghost btn-sm" id="markAllReadBtn" style="font-size:12px">Baca Semua</button></div><div id="notifList" style="max-height:400px;overflow-y:auto;margin-bottom:1rem"></div><div class="modal-actions"><button class="btn btn-ghost" onclick="this.closest(\'.modal-backdrop\').classList.remove(\'open\')">Tutup</button></div></div>';
+    document.body.appendChild(modal);
+  }
   btn.addEventListener('click', () => {
     renderNotifications();
-    document.getElementById('notifModal')?.classList.add('open');
+    modal.classList.add('open');
   });
   document.getElementById('markAllReadBtn')?.addEventListener('click', () => {
     notifier.markAllAsRead();

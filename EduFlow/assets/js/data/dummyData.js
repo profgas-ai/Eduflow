@@ -72,6 +72,7 @@ export function createDummyData() {
     notes,
     notifications,
     events,
+    gradeRecords: [],
     files: [],
     settings: {
       semesterActive: 5,

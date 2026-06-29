@@ -106,7 +106,8 @@ export function getData() {
       const raw = localStorage.getItem(storageKey());
       if (raw) { dataCache = JSON.parse(raw); return dataCache; }
     } catch {}
-    return createDummyData();
+    dataCache = createDummyData();
+    return dataCache;
   }
   return dataCache;
 }

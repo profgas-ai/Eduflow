@@ -1,4 +1,4 @@
-import { getData } from '../services/storage.js';
+import { getData, persist } from '../services/storage.js';
 import { db } from '../services/database.js';
 import { escapeHtml, generateId } from '../utils/helper.js';
 import { showToast } from '../components/toast.js';
@@ -62,7 +62,6 @@ export function initAttendance() {
 
     const absent = totalSessions - totalPresent;
     if (document.getElementById('attendanceChart')) {
-      await chartManager.loadChart();
       await chartManager.createAttendanceChart('attendanceChart', totalPresent, absent);
     }
   }

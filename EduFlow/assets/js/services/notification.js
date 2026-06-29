@@ -89,7 +89,7 @@ export class NotificationService {
       const alreadyNotified = (data.notifications || []).some(
         n => n.type === 'deadline' && n.title === 'Deadline Tugas' && n.message.includes(task.title)
       );
-      if (!alreadyNotified && diffHours > 0 && diffHours <= 24 && task.reminder) {
+      if (!alreadyNotified && diffHours > 0 && diffHours <= 24 && task.reminder !== false) {
         this.send('Deadline Tugas', {
           type: 'deadline',
           message: `${task.title} akan deadline dalam ${Math.round(diffHours)} jam`,

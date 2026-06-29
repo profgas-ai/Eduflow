@@ -39,6 +39,29 @@ export function initCalendar() {
       }
     });
 
+    const dayMap = { Minggu:0, Senin:1, Selasa:2, Rabu:3, Kamis:4, Jumat:5, Sabtu:6 };
+    schedules.forEach(s => {
+      const subj = subjects.find(x => x.id === s.subjectId);
+      if (!subj) return;
+      const dayNum = typeof s.day === 'number' ? s.day : (dayMap[s.day] ?? -1);
+      if (dayNum < 0) return;
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      for (let d = 1; d <= daysInMonth; d++) {
+        const date = new Date(currentYear, currentMonth, d);
+        if (date.getDay() === dayNum) {
+          combined.push({
+            id: s.id + '_' + d,
+            title: subj.name,
+            date: date.toISOString(),
+            type: 'class',
+            description: 'Kelas: ' + subj.name + (s.room ? ' · ' + s.room : '') + (s.startTime ? ' · ' + s.startTime : ''),
+            dateObj: date,
+            subjectColor: subj.color || '#4f46e5',
+          });
+        }
+      }
+    });
+
     return combined;
   }
 

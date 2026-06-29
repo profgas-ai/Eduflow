@@ -3,7 +3,6 @@ import { db } from '../services/database.js';
 import { escapeHtml, getGreeting, getDayName, generateId } from '../utils/helper.js';
 import { formatDate } from '../utils/formatter.js';
 import { chartManager } from '../components/chart.js';
-import { createTaskCard } from '../components/card.js';
 import { showToast } from '../components/toast.js';
 import { renderSchedule, setupTimetable } from './timetable.js';
 import { setupGpaCalculator } from './gpa.js';
@@ -55,8 +54,8 @@ function renderClock() {
 
 function renderStats(data) {
   const tasks = data.tasks || [];
-  const subjects = data.subjects || [];
   const activeSemester = data.user?.semester || data.settings?.semesterActive || 1;
+  const subjects = (data.subjects || []).filter(s => (s.semester || 1) === activeSemester);
   const today = new Date(); today.setHours(23, 59, 59, 999);
   const dueToday = tasks.filter(t => t.status !== 'completed' && new Date(t.deadline) <= today);
   const totalSessions = subjects.reduce((a, s) => a + (s.totalSessions || 0), 0);
@@ -132,7 +131,23 @@ function renderUpcomingTasks(data) {
     el.innerHTML = '<div class="empty-state">Tidak ada tugas mendatang. Mantap!</div>';
     return;
   }
-  el.innerHTML = pending.map(t => createTaskCard(t, subjects)).join('');
+  el.innerHTML = pending.map(t => {
+    const subj = subjects.find(s => s.id === t.subjectId);
+    const color = subj ? subj.color : 'var(--primary)';
+    return `<div class="task-card" style="border-left-color:${color};cursor:pointer" onclick="window.location.href='tasks.html'" data-id="${t.id}">
+      <div class="task-checkbox" style="pointer-events:none"></div>
+      <div class="task-body">
+        <div class="task-top">
+          <span class="task-subject" style="color:${color}">${subj ? escapeHtml(subj.name) : 'Umum'}</span>
+        </div>
+        <div class="task-title">${escapeHtml(t.title)}</div>
+        <div class="task-meta">
+          <span class="task-due">${formatDate(t.deadline, 'short')}</span>
+          ${t.priority ? `<span class="priority-badge priority-${t.priority}">${t.priority}</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderPinnedNotes(data) {

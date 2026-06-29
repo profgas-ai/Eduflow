@@ -51,7 +51,6 @@ export class Database {
       try {
         const { data, error } = await this.supabase.from(table).insert(records).select();
         if (error) throw error;
-        return data;
       } catch (e) {
         console.warn(`Insert into ${table} failed:`, e.message);
       }
@@ -64,7 +63,6 @@ export class Database {
       try {
         const { data, error } = await this.supabase.from(table).update(values).match(match).select();
         if (error) throw error;
-        return data;
       } catch (e) {
         console.warn(`Update ${table} failed:`, e.message);
       }
@@ -88,28 +86,6 @@ export class Database {
     const data = getData();
     const key = this._mapTable(table);
     if (!key) return null;
-    data[key] = data[key] || [];
-    if (Array.isArray(records)) {
-      if (match && match.id) {
-        const idx = data[key].findIndex(r => r.id === match.id);
-        if (idx >= 0) {
-          data[key][idx] = { ...data[key][idx], ...records[0] };
-        } else {
-          data[key].push(records[0]);
-        }
-      } else {
-        data[key].push(...records);
-      }
-    } else if (match && match.id) {
-      const idx = data[key].findIndex(r => r.id === match.id);
-      if (idx >= 0) {
-        data[key][idx] = { ...data[key][idx], ...records };
-      } else {
-        data[key].push(records);
-      }
-    } else {
-      data[key].push(records);
-    }
     persist();
     return [records].flat();
   }
