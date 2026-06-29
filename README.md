@@ -1,81 +1,242 @@
-# EduFlow
+# EduFlow 📚
 
-Manajemen mata kuliah, tugas, presensi, jadwal, dan catatan — PWA berbasis Supabase.
+**Aplikasi manajemen mata kuliah cerdas untuk mahasiswa**
 
-> Repo private — source code tidak publik. Website dapat diakses di https://eduflow-two-pearl.vercel.app
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-eduflow--two--pearl.vercel.app-4f46e5?style=flat-square&logo=vercel)](https://eduflow-two-pearl.vercel.app/)
+[![Version](https://img.shields.io/badge/Versi-2.0.0-blue?style=flat-square)](https://github.com/profgas-ai/Eduflow)
+[![License](https://img.shields.io/badge/Lisensi-MIT-green?style=flat-square)](LICENSE)
 
-## Fitur
+---
 
-- **Auth Multi-User** — Register/login via Supabase, data terisolasi per user
-- **Dashboard** — Greeting dinamis, jam realtime, quick stats, grafik (Chart.js), jadwal hari ini, tugas terdekat
-- **Mata Kuliah** — CRUD lengkap (dosen, ruang, jadwal, link LMS/Meet/WA, SKS, semester)
-- **Tugas** — Filter, sorting, search, prioritas, status, tenggat
-- **Presensi** — Catat kehadiran per pertemuan, ubah/edit/hapus riwayat, persentase + grafik, warning < 75%
-- **Kalender Akademik** — Bulanan, detail harian, event (deadline, quiz, UTS, UAS, libur)
-- **Catatan** — Markdown, pinned, filter per mata kuliah, tags
-- **Pengaturan** — Profil, upload avatar, tema (Light/Dark/System), export/import/hapus data, logout
-- **PWA** — Manifest, service worker, installable
+## Tentang EduFlow
+
+EduFlow adalah Progressive Web App (PWA) yang dirancang untuk membantu mahasiswa mengelola perkuliahan dalam satu platform. Mulai dari mencatat mata kuliah, melacak tugas dan deadline, memantau kehadiran, hingga menghitung IPK — semua tersedia tanpa perlu install aplikasi tambahan.
+
+Dibangun sebagai **project mandiri** oleh mahasiswa Teknik Informatika **Universitas Maritim Raja Ali Haji (UMRAH)**.
+
+---
+
+## Fitur Utama
+
+### 📊 Dashboard
+- Ringkasan aktivitas kuliah hari ini dan minggu ini
+- Jadwal kuliah dengan indikator kelas aktif
+- Tugas mendekati deadline
+- Catatan yang di-pin
+- Kalkulator IPK real-time dengan persistensi data
+
+### 📖 Mata Kuliah
+- Kelola mata kuliah per semester
+- Informasi lengkap: dosen, ruang, link LMS, link Meet, link WA grup
+- Indikator sisa jatah alpha langsung di card
+- Filter dan pencarian cepat
+
+### ✅ Tugas
+- Tambah tugas dengan prioritas (Rendah / Sedang / Tinggi)
+- Sub-tugas dengan checklist yang bisa di-tick langsung dari card
+- Pengingat deadline via notifikasi
+- Filter berdasarkan status, prioritas, dan kategori
+- Sortir berdasarkan deadline, prioritas, judul, atau tanggal dibuat
+
+### 📋 Presensi
+- Catat kehadiran per pertemuan (Hadir / Izin / Sakit / Alpha)
+- Hitung otomatis persentase kehadiran per mata kuliah
+- Tampilkan sisa jatah alpha sebelum di bawah 75%
+- Riwayat presensi lengkap dengan opsi edit status
+
+### 📅 Kalender
+- Tampilan bulan dengan event terintegrasi
+- Deadline tugas otomatis muncul di kalender
+- Jadwal kuliah otomatis dari data mata kuliah
+
+### 📝 Catatan
+- Buat catatan per mata kuliah
+- Dukungan Markdown
+- Pin catatan ke dashboard
+- Tag untuk organisasi
+- Export catatan per file `.md`
+- Pencarian catatan real-time
+
+### ⚙️ Pengaturan
+- Dark mode / Light mode / Sistem
+- Ganti warna aksen (8 pilihan)
+- Profil pengguna (nama, program studi, universitas)
+- Export & Import data (backup JSON)
+- Reset data
+
+---
 
 ## Teknologi
 
-| Teknologi | Kegunaan |
-|-----------|----------|
-| HTML + CSS (Material Design 3) + JS ES Modules | Frontend |
-| Supabase | Auth + Database + Storage |
-| Chart.js | Grafik |
-| localStorage | Cache offline (terpisah per user) |
+| Kategori | Teknologi |
+|---|---|
+| Frontend | HTML5, CSS3, JavaScript (ES Modules) |
+| Database Cloud | [Supabase](https://supabase.com) (PostgreSQL + Auth) |
+| Penyimpanan Lokal | IndexedDB + localStorage |
+| PWA | Service Worker, Web App Manifest |
+| Chart | [Chart.js](https://www.chartjs.org/) |
+| Deployment | [Vercel](https://vercel.com) |
+
+---
 
 ## Struktur Folder
 
 ```
 EduFlow/
-├── index.html / login.html / subjects.html / tasks.html
-├── attendance.html / calendar.html / notes.html / settings.html
-├── manifest.json / service-worker.js
-├── assets/
-│   ├── css/ (main, components, dashboard, subjects, tasks, attendance, calendar, responsive)
-│   ├── js/
-│   │   ├── app.js                 # Entry point
-│   │   ├── config/config.js       # Konfigurasi (Supabase URL, key, dll)
-│   │   ├── services/              # auth.js, database.js, storage.js, notification.js
-│   │   ├── modules/               # dashboard.js, subjects.js, tasks.js, attendance.js, calendar.js, notes.js, settings.js
-│   │   ├── components/            # sidebar.js, navbar.js, modal.js, toast.js, card.js, chart.js
-│   │   ├── utils/                 # helper.js, validator.js, formatter.js, constants.js
-│   │   └── data/dummyData.js
-│   ├── icons/ / images/
-├── database/schema.sql
-└── docs/
+├── index.html              # Dashboard
+├── subjects.html           # Mata kuliah
+├── tasks.html              # Tugas
+├── attendance.html         # Presensi
+├── calendar.html           # Kalender
+├── notes.html              # Catatan
+├── settings.html           # Pengaturan
+├── login.html              # Login / Register
+├── manifest.json           # PWA manifest
+├── service-worker.js       # PWA caching
+├── database/
+│   └── schema.sql          # Skema database Supabase
+└── assets/
+    ├── css/
+    │   ├── main.css         # Style global & variabel tema
+    │   ├── components.css   # Komponen UI (card, modal, toast)
+    │   ├── responsive.css   # Breakpoint mobile
+    │   ├── dashboard.css
+    │   ├── subjects.css
+    │   ├── tasks.css
+    │   ├── attendance.css
+    │   └── calendar.css
+    ├── js/
+    │   ├── app.js           # Entry point & inisialisasi halaman
+    │   ├── config/
+    │   │   └── config.js    # Konfigurasi global & konstanta
+    │   ├── modules/         # Logic tiap halaman
+    │   │   ├── dashboard.js
+    │   │   ├── subjects.js
+    │   │   ├── tasks.js
+    │   │   ├── attendance.js
+    │   │   ├── calendar.js
+    │   │   ├── notes.js
+    │   │   ├── settings.js
+    │   │   ├── gpa.js       # Kalkulator IPK
+    │   │   └── timetable.js # Jadwal mingguan
+    │   ├── services/        # Layer data & autentikasi
+    │   │   ├── auth.js      # Login, register, sesi
+    │   │   ├── database.js  # CRUD dengan fallback lokal
+    │   │   ├── storage.js   # IndexedDB + localStorage
+    │   │   ├── supabase.js  # Inisialisasi Supabase client
+    │   │   └── notification.js
+    │   ├── components/      # UI reusable
+    │   │   ├── card.js
+    │   │   ├── modal.js
+    │   │   ├── toast.js
+    │   │   ├── dialog.js
+    │   │   ├── chart.js
+    │   │   ├── sidebar.js
+    │   │   └── navbar.js
+    │   └── utils/
+    │       ├── helper.js
+    │       ├── validator.js
+    │       ├── formatter.js
+    │       └── constants.js
+    └── icons/
+        ├── icon.svg
+        ├── icon-192.svg
+        └── icon-512.svg
 ```
 
+---
 
+## Cara Menjalankan Secara Lokal
 
-## ERD
+### Prasyarat
+- Browser modern (Chrome, Firefox, Edge, Safari)
+- Web server lokal (Live Server, Python HTTP server, dll.)
+- Akun [Supabase](https://supabase.com) *(opsional — app bisa jalan offline tanpa Supabase)*
 
+### Langkah
+
+**1. Clone repositori**
+```bash
+git clone https://github.com/profgas-ai/Eduflow.git
+cd Eduflow/EduFlow
 ```
-users (1) ──── (N) subjects, tasks, attendance, schedules, notes, notifications, settings, files, events
-subjects (1) ── (N) tasks, attendance, schedules, notes, files, events
+
+**2. Setup Supabase (opsional)**
+
+Buat project baru di [supabase.com](https://supabase.com), lalu jalankan `database/schema.sql` di SQL Editor Supabase. Setelah itu, edit `assets/js/config/config.js`:
+
+```js
+export const CONFIG = {
+  SUPABASE_URL: 'https://YOUR_PROJECT.supabase.co',
+  SUPABASE_ANON_KEY: 'YOUR_ANON_KEY',
+  // ...
+};
 ```
 
-## Roadmap
+**3. Jalankan dengan Live Server**
 
-### v2.0
-- [x] ES Modules, struktur folder
-- [x] CRUD mata kuliah, tugas, presensi, catatan
-- [x] Dashboard + grafik (Chart.js)
-- [x] Kalender akademik
-- [x] Dark mode, responsive, PWA
-- [x] Auth Supabase (multi-user)
-- [x] Export/Import JSON
+Gunakan ekstensi [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) di VS Code, atau:
 
-### Planned
-- [ ] Upload file (PDF, gambar)
-- [ ] Push notification / reminder
-- [ ] Schedule timeline view
-- [ ] Export PDF
-- [ ] GPA calculator
-- [ ] Real-time sync (Supabase Realtime)
-- [ ] Offline-first (IndexedDB)
+```bash
+# Python
+python -m http.server 5500
 
-## Lisensi
+# Node.js
+npx serve .
+```
 
-MIT
+Buka `http://localhost:5500` di browser.
+
+> ⚠️ Harus dijalankan lewat HTTP server, bukan buka file langsung (`file://`), karena menggunakan ES Modules.
+
+---
+
+## Mode Offline
+
+EduFlow bisa berjalan **sepenuhnya tanpa koneksi internet**. Data tersimpan di IndexedDB browser. Kalau Supabase tersambung, data otomatis tersinkron ke cloud saat ada koneksi.
+
+> ⚠️ Mode login offline tidak menggunakan enkripsi yang kuat. Disarankan untuk menggunakan akun Supabase agar data lebih aman.
+
+---
+
+## Install sebagai PWA
+
+1. Buka [https://eduflow-two-pearl.vercel.app](https://eduflow-two-pearl.vercel.app) di browser
+2. Klik ikon **Install** di address bar (Chrome/Edge), atau pilih **Tambahkan ke layar utama** (Safari/Android)
+3. EduFlow akan tersedia seperti aplikasi native di perangkatmu
+
+---
+
+## Database Schema
+
+EduFlow menggunakan PostgreSQL via Supabase dengan tabel berikut:
+
+| Tabel | Deskripsi |
+|---|---|
+| `users` | Profil pengguna |
+| `subjects` | Data mata kuliah |
+| `tasks` | Tugas dan checklist |
+| `attendance` | Record presensi per pertemuan |
+| `schedules` | Jadwal kuliah |
+| `notes` | Catatan per mata kuliah |
+| `notifications` | Notifikasi in-app |
+| `settings` | Preferensi pengguna |
+| `events` | Event kalender |
+| `files` | File terlampir |
+
+Semua tabel dilindungi dengan **Row Level Security (RLS)** — setiap pengguna hanya bisa mengakses datanya sendiri.
+
+---
+
+## Author
+
+**Muhammad Bagas Risllah**  
+Mahasiswa Teknik Informatika  
+Universitas Maritim Raja Ali Haji (UMRAH)
+
+---
+
+## Link
+
+- 🌐 **Live Demo:** [eduflow-two-pearl.vercel.app](https://eduflow-two-pearl.vercel.app/)
+- 💻 **Repository:** [github.com/profgas-ai/Eduflow](https://github.com/profgas-ai/Eduflow)
