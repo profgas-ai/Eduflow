@@ -135,9 +135,9 @@ function renderUpcomingTasks(data) {
   el.innerHTML = pending.map(t => {
     const subj = subjects.find(s => s.id === t.subjectId);
     const color = subj ? subj.color : 'var(--primary)';
-    return `<div class="task-card" style="border-left-color:${color};cursor:pointer" onclick="window.location.href='tasks.html'" data-id="${t.id}">
-      <div class="task-checkbox" style="pointer-events:none"></div>
-      <div class="task-body">
+    return `<div class="task-card" style="border-left-color:${color}" data-id="${t.id}">
+      <div class="task-checkbox" data-task-id="${t.id}" style="cursor:pointer"></div>
+      <div class="task-body" style="cursor:pointer" onclick="window.location.href='tasks.html'">
         <div class="task-top">
           <span class="task-subject" style="color:${color}">${subj ? escapeHtml(subj.name) : 'Umum'}</span>
         </div>
@@ -149,6 +149,20 @@ function renderUpcomingTasks(data) {
       </div>
     </div>`;
   }).join('');
+  el.querySelectorAll('.task-checkbox').forEach(cb => {
+    cb.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const taskId = cb.dataset.taskId;
+      const task = pending.find(t => t.id === taskId);
+      if (!task) return;
+      task.status = 'completed';
+      task.completedAt = new Date().toISOString();
+      db.update('tasks', { id: taskId }, { status: 'completed', completedAt: task.completedAt });
+      persist();
+      showToast('Tugas selesai!');
+      renderUpcomingTasks(data);
+    });
+  });
 }
 
 function renderPinnedNotes(data) {

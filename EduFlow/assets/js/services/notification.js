@@ -33,6 +33,7 @@ export class NotificationService {
       message: options.message || '',
       read: false,
       createdAt: new Date().toISOString(),
+      _taskId: options._taskId || null,
     };
     data.notifications = data.notifications || [];
     data.notifications.unshift(notification);
@@ -86,14 +87,17 @@ export class NotificationService {
       if (!task.deadline) return;
       const deadline = new Date(task.deadline);
       const diffHours = (deadline - now) / 36e5;
-      const alreadyNotified = (data.notifications || []).some(
-        n => n.type === 'deadline' && n.title === 'Deadline Tugas' && n.message.includes(task.title)
-      );
-      if (!alreadyNotified && diffHours > 0 && diffHours <= 24 && task.reminder !== false) {
-        this.send('Deadline Tugas', {
-          type: 'deadline',
-          message: `${task.title} akan deadline dalam ${Math.round(diffHours)} jam`,
-        });
+      if (diffHours > 0 && diffHours <= 24 && task.reminder !== false) {
+        const alreadyNotified = (data.notifications || []).some(
+          n => n.type === 'deadline' && n._taskId === task.id
+        );
+        if (!alreadyNotified) {
+          this.send('Deadline Tugas', {
+            type: 'deadline',
+            _taskId: task.id,
+            message: `${task.title} akan deadline dalam ${Math.round(diffHours)} jam`,
+          });
+        }
       }
     });
   }
