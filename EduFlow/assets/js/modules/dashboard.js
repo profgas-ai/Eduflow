@@ -54,8 +54,9 @@ function renderClock() {
 
 function renderStats(data) {
   const tasks = data.tasks || [];
-  const activeSemester = data.user?.semester || data.settings?.semesterActive || 1;
-  const subjects = (data.subjects || []).filter(s => (s.semester || 1) === activeSemester);
+  const allSubjects = data.subjects || [];
+  const activeSemester = data.user?.semester || data.settings?.semesterActive || (allSubjects.length > 0 ? Math.max(...allSubjects.map(s => s.semester || 1)) : 1);
+  const subjects = allSubjects.filter(s => (s.semester || 1) === activeSemester);
   const today = new Date(); today.setHours(23, 59, 59, 999);
   const dueToday = tasks.filter(t => t.status !== 'completed' && new Date(t.deadline) <= today);
   const totalSessions = subjects.reduce((a, s) => a + (s.totalSessions || 0), 0);
