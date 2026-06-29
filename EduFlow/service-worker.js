@@ -28,6 +28,7 @@ const STATIC_ASSETS = [
   ROOT + '/assets/js/services/storage.js',
   ROOT + '/assets/js/services/database.js',
   ROOT + '/assets/js/services/auth.js',
+  ROOT + '/assets/js/services/supabase.js',
   ROOT + '/assets/js/services/notification.js',
   ROOT + '/assets/js/data/dummyData.js',
   ROOT + '/assets/js/components/toast.js',
@@ -44,6 +45,8 @@ const STATIC_ASSETS = [
   ROOT + '/assets/js/modules/calendar.js',
   ROOT + '/assets/js/modules/notes.js',
   ROOT + '/assets/js/modules/settings.js',
+  ROOT + '/assets/js/modules/timetable.js',
+  ROOT + '/assets/js/modules/gpa.js',
 ];
 
 self.addEventListener('install', (event) => {

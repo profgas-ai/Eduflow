@@ -1,5 +1,5 @@
-import { CONFIG } from '../config/config.js';
-import { loadData, saveData, getData, persist } from './storage.js';
+import { getData, persist } from './storage.js';
+import { getSupabaseClient } from './supabase.js';
 
 export class Database {
   constructor() {
@@ -8,15 +8,12 @@ export class Database {
   }
 
   async init() {
-    if (CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY) {
-      try {
-        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-        this.supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-        this.ready = true;
-        console.log('Supabase connected');
-      } catch (e) {
-        console.warn('Supabase init failed, using localStorage:', e.message);
-      }
+    this.supabase = await getSupabaseClient();
+    if (this.supabase) {
+      this.ready = true;
+      console.log('Supabase connected');
+    } else {
+      console.warn('Supabase not available, using localStorage');
     }
   }
 

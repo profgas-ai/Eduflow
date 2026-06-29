@@ -72,7 +72,7 @@ import { renderBottomNav, setActiveNav } from './components/navbar.js';
   }
 
   if ('serviceWorker' in navigator) {
-    const swUrl = new URL('../service-worker.js', import.meta.url).pathname;
+    const swUrl = new URL('../../service-worker.js', import.meta.url).pathname;
     navigator.serviceWorker.register(swUrl).catch(e => console.warn('SW registration failed:', e));
   }
 })();

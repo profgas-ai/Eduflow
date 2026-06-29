@@ -52,9 +52,9 @@
       </div>
 
       <div class="quick-stats" id="quickStats">
-        <div class="quick-stat" style="cursor:pointer;" onclick="document.getElementById('semesterModal').classList.add('open')" title="Klik untuk ganti semester">
+        <div class="quick-stat" style="cursor:pointer;" onclick="document.getElementById('semesterModal').classList.add('open')" title="Klik untuk ganti atau copy semester">
           <div class="quick-stat-value" id="currentSemester">Semester 5</div>
-          <div class="quick-stat-label">Semester Aktif ↻</div>
+          <div class="quick-stat-label" style="display:flex;align-items:center;gap:0.25rem"><span>Ganti Semester</span><span style="font-size:11px;background:var(--primary-container);color:var(--on-primary-container);padding:0 6px;border-radius:4px;font-weight:600">klik</span></div>
         </div>
         <div class="quick-stat">
           <div class="quick-stat-value" id="totalSksDisplay">0 SKS</div>
@@ -100,6 +100,8 @@
         </div>
       </div>
 
+      <div class="weekly-summary" id="weeklySummary" style="padding:0.75rem 1rem;background:var(--surface-container);border-radius:var(--radius-md);margin-bottom:1rem;font-size:14px;color:var(--on-surface-variant);line-height:1.5"></div>
+
       <div class="chart-grid">
         <div class="chart-card">
           <h4>Progress Tugas</h4>
@@ -124,6 +126,14 @@
         <div id="timetableGrid" style="min-width:700px"></div>
       </div>
 
+      <div id="dashboardNotesSection" style="display:none">
+        <div class="section-head">
+          <h2>Catatan Penting</h2>
+          <a class="link-btn" href="notes.html">Lihat Semua</a>
+        </div>
+        <div class="stack-gap" id="dashboardNotesList"></div>
+      </div>
+
       <div class="section-head">
         <h2>Deadline Minggu Ini</h2>
         <span class="badge-count" id="weeklyDeadlineCount">0</span>
@@ -142,6 +152,18 @@
     </button>
 
     <button class="ipk-fab" id="ipkFabBtn" aria-label="Kalkulator IPK" title="Kalkulator IPK" style="position:fixed;bottom:5rem;right:1.25rem;width:44px;height:44px;border-radius:50%;background:var(--tertiary);color:#fff;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.2);cursor:pointer;font-weight:700;font-size:14px;z-index:99;">Σ</button>
+
+<div class="modal-backdrop" id="onboardingBackdrop" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <h3 class="onboarding-title" style="margin-top:1rem">Selamat Datang!</h3>
+    <p class="onboarding-desc" style="font-size:14px;color:var(--on-surface-variant);margin:1rem 0;line-height:1.6"></p>
+    <div style="margin:1.5rem 0">
+      <button class="btn btn-primary onboarding-btn" data-link="">Mulai</button>
+      <button class="btn btn-ghost onboarding-skip" style="display:block;margin:0.75rem auto 0;font-size:13px">Lewati</button>
+    </div>
+    <div class="onboarding-step" style="font-size:12px;color:var(--on-surface-variant)">1/4</div>
+  </div>
+</div>
 
     <nav class="bottom-nav"></nav>
   </div>

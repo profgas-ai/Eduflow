@@ -32,7 +32,12 @@ export function createTaskCard(task, subjects) {
   const checklist = task.checklist || [];
   const doneCount = checklist.filter(s => s.done).length;
   const subtaskHtml = checklist.length > 0
-    ? `<div style="margin-top:0.4rem;font-size:12px;color:var(--on-surface-variant)">Sub-tugas: ${doneCount}/${checklist.length}</div>`
+    ? `<div style="margin-top:0.4rem;font-size:12px;color:var(--on-surface-variant)">Sub-tugas: ${doneCount}/${checklist.length}</div>
+       <div class="subtask-checklist" style="margin-top:0.3rem">${checklist.map((s, i) => `
+         <label class="subtask-item" style="display:flex;align-items:center;gap:0.4rem;padding:0.15rem 0;cursor:pointer;font-size:13px;${s.done ? 'text-decoration:line-through;color:var(--on-surface-variant)' : ''}">
+           <input type="checkbox" class="subtask-checkbox" data-id="${task.id}" data-idx="${i}" ${s.done ? 'checked' : ''} style="accent-color:${color};width:14px;height:14px;margin:0">
+           <span>${escapeHtml(s.text)}</span>
+         </label>`).join('')}</div>`
     : '';
   return `
     <div class="task-card ${completed ? 'completed' : ''}" style="border-left-color:${color}" data-id="${task.id}">
@@ -44,6 +49,7 @@ export function createTaskCard(task, subjects) {
           <span class="task-subject" style="color:${color}">${subj ? escapeHtml(subj.name) : 'Umum'}</span>
           ${completed ? '' : `<span class="time-left ${tl.urgent ? 'urgent' : 'ok'}">${tl.text}</span>`}
         </div>
+        ${!completed && tl.urgent ? `<div class="countdown-badge" style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--error-container);color:var(--on-error-container);display:inline-block;margin:0.25rem 0 0 1.8rem">${tl.text}</div>` : ''}
         <div class="task-title">${escapeHtml(task.title)}</div>
         ${task.description ? `<div class="task-desc">${escapeHtml(task.description)}</div>` : ''}
         <div class="task-meta">

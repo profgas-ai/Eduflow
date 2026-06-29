@@ -115,9 +115,24 @@ export function persist() {
   if (dataCache) {
     const ret = saveData(dataCache);
     if (syncCallback) syncCallback(dataCache);
+    showSaveIndicator();
     return ret;
   }
   return false;
+}
+
+function showSaveIndicator() {
+  let el = document.getElementById('saveIndicator');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'saveIndicator';
+    el.style.cssText = 'position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:var(--surface-container-high);color:var(--on-surface);padding:0.35rem 0.85rem;border-radius:20px;font-size:12px;font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.1);z-index:9999;transition:opacity 0.3s;pointer-events:none';
+    el.textContent = 'Tersimpan';
+    document.body.appendChild(el);
+  }
+  el.style.opacity = '1';
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.style.opacity = '0'; }, 1500);
 }
 
 export function setSyncCallback(fn) {

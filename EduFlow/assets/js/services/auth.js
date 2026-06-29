@@ -1,5 +1,16 @@
 import { CONFIG } from '../config/config.js';
 import { getData, persist } from './storage.js';
+import { getSupabaseClient } from './supabase.js';
+
+function _hashPassword(password) {
+  let hash = 0;
+  for (let i = 0; i < password.length; i++) {
+    const char = password.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return 'h' + Math.abs(hash).toString(36);
+}
 
 export class AuthService {
   constructor() {
@@ -9,10 +20,9 @@ export class AuthService {
   }
 
   async init() {
-    if (CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY) {
+    this.supabase = await getSupabaseClient();
+    if (this.supabase) {
       try {
-        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-        this.supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
         const { data: { session } } = await this.supabase.auth.getSession();
         if (session) {
           this.currentUser = session.user;
@@ -49,11 +59,15 @@ export class AuthService {
       this._notify();
       return data.user;
     }
+    const stored = JSON.parse(localStorage.getItem('eduflow_credentials') || '{}');
+    const storedHash = stored[email];
+    if (!storedHash) throw new Error('Email tidak terdaftar');
+    if (storedHash !== _hashPassword(password)) throw new Error('Password salah');
     const data = getData();
     data.user.email = email;
-    data.user.name = email.split('@')[0];
+    data.user.name = stored.name || email.split('@')[0];
     persist();
-    this.currentUser = { email, id: 'local' };
+    this.currentUser = { email, id: 'local', name: data.user.name };
     localStorage.setItem('eduflow_user', JSON.stringify(this.currentUser));
     this._notify();
     return this.currentUser;
@@ -66,6 +80,10 @@ export class AuthService {
       this.currentUser = data.user;
       return data.user;
     }
+    const creds = JSON.parse(localStorage.getItem('eduflow_credentials') || '{}');
+    creds[email] = _hashPassword(password);
+    creds.name = name || email.split('@')[0];
+    localStorage.setItem('eduflow_credentials', JSON.stringify(creds));
     const data = getData();
     data.user.email = email;
     data.user.name = name || email.split('@')[0];

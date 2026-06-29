@@ -74,11 +74,39 @@ export function initTasks() {
     bindTaskEvents();
   }
 
+  function toggleSubtask(taskId, idx) {
+    const t = data.tasks.find(x => x.id === taskId);
+    if (!t) return;
+    const checklist = t.checklist || [];
+    if (checklist[idx]) {
+      checklist[idx].done = !checklist[idx].done;
+      const doneCount = checklist.filter(s => s.done).length;
+      const progress = checklist.length > 0 ? Math.round((doneCount / checklist.length) * 100) : 0;
+      if (progress === 100) {
+        t.status = 'completed';
+        t.completedAt = new Date().toISOString();
+      } else if (t.status === 'completed') {
+        t.status = 'pending';
+        t.completedAt = null;
+      }
+      t.progress = progress;
+      db.update('tasks', { id: taskId }, { checklist, progress, status: t.status, completedAt: t.completedAt });
+      render();
+    }
+  }
+
   function bindTaskEvents() {
     document.querySelectorAll('.task-checkbox').forEach(el => {
       el.addEventListener('click', (e) => {
         const id = e.currentTarget.dataset.id;
         toggleTask(id);
+      });
+    });
+    document.querySelectorAll('.subtask-checkbox').forEach(el => {
+      el.addEventListener('change', (e) => {
+        const id = e.currentTarget.dataset.id;
+        const idx = parseInt(e.currentTarget.dataset.idx);
+        toggleSubtask(id, idx);
       });
     });
     document.querySelectorAll('.btn-edit-task').forEach(btn => {
@@ -152,6 +180,8 @@ export function initTasks() {
     setValue('tPriority', 'medium');
     setValue('tCategory', '');
     setValue('tProgress', 0);
+    const reminderEl = document.getElementById('tReminder');
+    if (reminderEl) reminderEl.checked = false;
     renderSubjectOptions('tSubject');
     renderSubtaskInputs([]);
     openModal('taskModalBackdrop');
@@ -175,6 +205,8 @@ export function initTasks() {
       d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
       setValue('tDue', d.toISOString().slice(0, 16));
     }
+    const reminderEl = document.getElementById('tReminder');
+    if (reminderEl) reminderEl.checked = !!t.reminder;
     renderSubtaskInputs(t.checklist || []);
     openModal('taskModalBackdrop');
   }
@@ -188,6 +220,7 @@ export function initTasks() {
     const priority = document.getElementById('tPriority')?.value || 'medium';
     const category = document.getElementById('tCategory')?.value || '';
     const notes = document.getElementById('tNotes')?.value?.trim() || '';
+    const reminder = document.getElementById('tReminder')?.checked || false;
     const refs = (document.getElementById('tReference')?.value || '').split(',').map(r => r.trim()).filter(Boolean);
     const checklist = getSubtaskInputs();
     const doneCount = checklist.filter(s => s.done).length;
@@ -201,7 +234,7 @@ export function initTasks() {
         const updates = {
           title, description: desc, deadline: new Date(due).toISOString(),
           deadlineTime: due.includes('T') ? due.split('T')[1] : '23:59',
-          subjectId, priority, category, progress, notes, references: refs, checklist,
+          subjectId, priority, category, progress, notes, references: refs, checklist, reminder,
         };
         Object.assign(t, updates);
         db.update('tasks', { id }, updates);
@@ -214,7 +247,7 @@ export function initTasks() {
         deadlineTime: due.includes('T') ? due.split('T')[1] : '23:59',
         priority, status: 'pending', category, progress, notes,
         references: refs, checklist, attachments: [],
-        reminder: false,
+        reminder,
         createdAt: new Date().toISOString(), completedAt: null,
       };
       data.tasks.push(newTask);

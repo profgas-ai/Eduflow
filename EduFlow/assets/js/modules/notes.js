@@ -69,6 +69,7 @@ export function initNotes() {
         </div>
         <div class="note-actions">
           <button class="icon-action btn-edit-note" data-id="${n.id}" title="Edit">✎</button>
+          <button class="icon-action btn-export-note" data-id="${n.id}" title="Export">⬇</button>
           <button class="icon-action btn-toggle-pin" data-id="${n.id}" title="Pin">📌</button>
           <button class="icon-action btn-delete-note" data-id="${n.id}" title="Hapus">🗑</button>
         </div>
@@ -78,11 +79,33 @@ export function initNotes() {
     bindNoteEvents();
   }
 
+  function exportNote(id) {
+    const note = (data.notes || []).find(n => n.id === id);
+    if (!note) return;
+    const content = `# ${note.title}\n\n${note.content || ''}\n\n---\n*Diekspor dari EduFlow - ${new Date().toLocaleDateString('id-ID')}*`;
+    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${note.title.replace(/[^a-zA-Z0-9]/g, '_')}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Catatan diekspor');
+  }
+
   function bindNoteEvents() {
     document.querySelectorAll('.btn-edit-note').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.currentTarget.dataset.id;
         editNote(id);
+      });
+    });
+    document.querySelectorAll('.btn-export-note').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.dataset.id;
+        exportNote(id);
       });
     });
     document.querySelectorAll('.btn-toggle-pin').forEach(btn => {

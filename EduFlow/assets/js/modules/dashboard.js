@@ -1,10 +1,12 @@
-import { getData } from '../services/storage.js';
+import { getData, persist } from '../services/storage.js';
 import { db } from '../services/database.js';
 import { escapeHtml, getGreeting, getDayName, generateId } from '../utils/helper.js';
 import { formatDate } from '../utils/formatter.js';
 import { chartManager } from '../components/chart.js';
-import { createTaskCard, createScheduleCard } from '../components/card.js';
+import { createTaskCard } from '../components/card.js';
 import { showToast } from '../components/toast.js';
+import { renderSchedule, setupTimetable } from './timetable.js';
+import { setupGpaCalculator } from './gpa.js';
 
 export function initDashboard() {
   const data = getData();
@@ -13,16 +15,19 @@ export function initDashboard() {
   renderClock();
   renderStats(data);
   renderMomentum(data);
+  renderWeeklySummary(data);
   renderSchedule(data);
   setupTimetable(data);
   renderUpcomingTasks(data);
   initCharts(data);
   setupQuickAdd(data);
   setupSemesterSwitcher(data);
+  renderPinnedNotes(data);
   renderWeeklyDeadline(data);
   setupClickableStats();
   setupQuickAttend(data);
   setupGpaCalculator(data);
+  showOnboarding(data);
 }
 
 function renderGreeting(user) {
@@ -81,71 +86,38 @@ function renderMomentum(data) {
   el.textContent = total ? `Kamu sudah menyelesaikan ${pct}% target tugas. Lanjutkan!` : 'Belum ada tugas. Tambahkan tugas pertamamu!';
 }
 
-function renderSchedule(data) {
-  const el = document.getElementById('classList');
+function renderWeeklySummary(data) {
+  const el = document.getElementById('weeklySummary');
   if (!el) return;
-  const schedules = data.schedules || [];
+  const tasks = data.tasks || [];
   const subjects = data.subjects || [];
-  const today = getDayName(new Date(), false);
-  const todaySchedule = schedules.filter(s => s.day === today);
-  if (todaySchedule.length === 0) {
-    el.innerHTML = '<div class="empty-state">Tidak ada jadwal hari ini. Nikmati harimu!</div>';
-    return;
-  }
-  el.innerHTML = todaySchedule.slice(0, 4).map(s => {
-    const subj = subjects.find(x => x.id === s.subjectId);
-    return createScheduleCard(s, subj);
-  }).join('');
-}
-
-function setupTimetable(data) {
-  const btn = document.getElementById('showTimetableBtn');
-  const container = document.getElementById('timetableContainer');
-  if (!btn || !container) return;
-  let visible = false;
-  btn.addEventListener('click', () => {
-    visible = !visible;
-    container.style.display = visible ? 'block' : 'none';
-    btn.textContent = visible ? 'Jadwal Hari Ini' : 'Tampilan Jadwal';
-    if (visible) renderTimetable(data);
-  });
-}
-
-function renderTimetable(data) {
-  const grid = document.getElementById('timetableGrid');
-  if (!grid) return;
   const schedules = data.schedules || [];
-  const subjects = data.subjects || [];
-  const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-  const hours = [];
-  for (let h = 7; h <= 20; h++) hours.push(String(h).padStart(2, '0') + ':00');
+  const now = new Date();
+  const endOfWeek = new Date(now);
+  endOfWeek.setDate(now.getDate() + (7 - now.getDay()));
+  endOfWeek.setHours(23, 59, 59, 999);
 
-  let html = '<table style="width:100%;border-collapse:collapse;font-size:12px">';
-  html += '<thead><tr><th style="padding:6px;text-align:left;color:var(--on-surface-variant);width:50px">Jam</th>';
-  days.forEach(d => { html += `<th style="padding:6px;text-align:center;color:var(--on-surface-variant);font-weight:600">${d}</th>`; });
-  html += '</tr></thead><tbody>';
+  const weekDeadlines = tasks.filter(t => {
+    if (t.status === 'completed') return false;
+    const d = new Date(t.deadline);
+    return d >= now && d <= endOfWeek;
+  }).length;
 
-  hours.forEach(hour => {
-    html += `<tr><td style="padding:4px 6px;color:var(--on-surface-variant);border-bottom:1px solid var(--outline-variant);font-size:11px">${hour}</td>`;
-    days.forEach(day => {
-      const classes = schedules.filter(s => s.day === day && s.startTime <= hour && s.endTime > hour);
-      if (classes.length > 0) {
-        const s = classes[0];
-        const subj = subjects.find(x => x.id === s.subjectId);
-        const color = subj ? subj.color : 'var(--primary)';
-        const isStart = s.startTime === hour;
-        html += `<td style="padding:0;border-bottom:1px solid var(--outline-variant);vertical-align:middle;text-align:center;background:${isStart ? color + '18' : 'transparent'}">
-          ${isStart ? `<div style="padding:2px 4px;font-weight:600;color:${color};font-size:11px">${subj ? subj.name : ''}</div><div style="font-size:10px;color:var(--on-surface-variant)">${s.room || ''}</div>` : ''}
-        </td>`;
-      } else {
-        html += `<td style="padding:0;border-bottom:1px solid var(--outline-variant)"></td>`;
-      }
-    });
-    html += '</tr>';
-  });
+  const today = getDayName(now, false);
+  const todayClasses = schedules.filter(s => s.day === today).length;
+  const notStarted = tasks.filter(t => t.status === 'pending' && new Date(t.deadline) <= endOfWeek).length;
+  const overdue = tasks.filter(t => t.status !== 'completed' && new Date(t.deadline) < now).length;
 
-  html += '</tbody></table>';
-  grid.innerHTML = html;
+  const parts = [];
+  if (weekDeadlines > 0) parts.push(`${weekDeadlines} tugas deadline`);
+  if (todayClasses > 0) parts.push(`${todayClasses} kelas hari ini`);
+  if (notStarted > 0) parts.push(`${notStarted} tugas belum mulai`);
+  if (overdue > 0) parts.push(`${overdue} tugas lewat`);
+  if (subjects.length > 0) parts.push(`${subjects.length} mata kuliah aktif`);
+
+  el.textContent = parts.length > 0
+    ? 'Minggu ini: ' + parts.join(', ') + '.'
+    : 'Belum ada aktivitas minggu ini. Yuk tambah mata kuliah!';
 }
 
 function renderUpcomingTasks(data) {
@@ -161,6 +133,21 @@ function renderUpcomingTasks(data) {
     return;
   }
   el.innerHTML = pending.map(t => createTaskCard(t, subjects)).join('');
+}
+
+function renderPinnedNotes(data) {
+  const section = document.getElementById('dashboardNotesSection');
+  const list = document.getElementById('dashboardNotesList');
+  if (!section || !list) return;
+  const notes = (data.notes || []).filter(n => n.pinned);
+  if (notes.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  list.innerHTML = notes.slice(0, 3).map(n => `
+    <div class="note-mini-card" style="padding:0.6rem 0.75rem;background:var(--surface-container-lowest);border:1px solid var(--outline-variant);border-radius:var(--radius-md);margin-bottom:0.4rem;cursor:pointer" onclick="window.location.href='notes.html'">
+      <div style="font-weight:600;font-size:14px;margin-bottom:0.2rem">${escapeHtml(n.title)}</div>
+      <div style="font-size:12px;color:var(--on-surface-variant);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml((n.content || '').slice(0, 100))}</div>
+    </div>
+  `).join('');
 }
 
 function renderWeeklyDeadline(data) {
@@ -223,7 +210,18 @@ async function initCharts(data) {
 
   if (document.getElementById('productivityChart')) {
     const days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-    const weekData = days.map(() => Math.floor(Math.random() * 5));
+    const weekData = days.map((_, i) => {
+      const dayIdx = (i + 1) % 7;
+      return tasks.filter(t => {
+        if (t.status !== 'completed') return false;
+        const d = new Date(t.completedAt || t.updatedAt);
+        const now = new Date();
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay());
+        weekStart.setHours(0, 0, 0, 0);
+        return d >= weekStart && d.getDay() === dayIdx;
+      }).length;
+    });
     await chartManager.createWeeklyActivityChart('productivityChart', days, weekData);
   }
 }
@@ -385,71 +383,6 @@ function setupQuickAttend(data) {
   });
 }
 
-function setupGpaCalculator(data) {
-  const gradeValues = { A: 4.0, 'A-': 3.7, 'B+': 3.3, B: 3.0, 'B-': 2.7, 'C+': 2.3, C: 2.0, D: 1.0, E: 0 };
-  let rows = [];
-
-  function calcGpa() {
-    let totalSks = 0, totalNilai = 0;
-    rows.forEach(r => {
-      const sks = parseInt(r.sks) || 0;
-      const grade = gradeValues[r.grade] || 0;
-      totalSks += sks;
-      totalNilai += sks * grade;
-    });
-    const gpa = totalSks > 0 ? (totalNilai / totalSks) : 0;
-    document.getElementById('ipkResult').textContent = gpa.toFixed(2);
-  }
-
-  function renderIpkRows() {
-    const list = document.getElementById('ipkSubjectList');
-    if (!list) return;
-    if (rows.length === 0) {
-      (data.subjects || []).forEach(s => {
-        rows.push({ name: s.name, sks: s.sks, grade: 'B+' });
-      });
-    }
-    list.innerHTML = rows.map((r, i) => `
-      <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;align-items:center">
-        <input type="text" value="${escapeHtml(r.name)}" data-idx="${i}" class="ipk-name" placeholder="Nama MK" style="flex:2;padding:0.5rem;border:1px solid var(--outline-variant);border-radius:var(--radius-sm);background:var(--surface-container);font-size:13px">
-        <input type="number" value="${r.sks}" data-idx="${i}" class="ipk-sks" min="1" max="6" style="width:50px;padding:0.5rem;border:1px solid var(--outline-variant);border-radius:var(--radius-sm);background:var(--surface-container);font-size:13px">
-        <select data-idx="${i}" class="ipk-grade" style="padding:0.5rem;border:1px solid var(--outline-variant);border-radius:var(--radius-sm);background:var(--surface-container);font-size:13px">
-          ${Object.keys(gradeValues).map(g => `<option value="${g}" ${g === r.grade ? 'selected' : ''}>${g}</option>`).join('')}
-        </select>
-        <button class="icon-action ipk-delete" data-idx="${i}" style="font-size:16px">×</button>
-      </div>
-    `).join('');
-
-    list.querySelectorAll('.ipk-name, .ipk-sks, .ipk-grade').forEach(el => {
-      el.addEventListener('change', (e) => {
-        const idx = parseInt(e.currentTarget.dataset.idx);
-        if (e.currentTarget.classList.contains('ipk-name')) rows[idx].name = e.currentTarget.value;
-        if (e.currentTarget.classList.contains('ipk-sks')) rows[idx].sks = parseInt(e.currentTarget.value) || 0;
-        if (e.currentTarget.classList.contains('ipk-grade')) rows[idx].grade = e.currentTarget.value;
-        calcGpa();
-      });
-    });
-    list.querySelectorAll('.ipk-delete').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const idx = parseInt(e.currentTarget.dataset.idx);
-        rows.splice(idx, 1);
-        renderIpkRows();
-        calcGpa();
-      });
-    });
-    calcGpa();
-  }
-
-  document.getElementById('ipkFabBtn')?.addEventListener('click', () => {
-    renderIpkRows();
-    document.getElementById('ipkModal').classList.add('open');
-  });
-  document.getElementById('ipkAddRow')?.addEventListener('click', () => {
-    rows.push({ name: '', sks: 3, grade: 'B+' });
-    renderIpkRows();
-  });
-}
-
 function setupClickableStats() {
   const links = {
     tasksDueToday: 'tasks.html',
@@ -465,6 +398,51 @@ function setupClickableStats() {
       el.addEventListener('click', () => { window.location.href = url; });
     }
   });
+}
+
+function showOnboarding(data) {
+  const hasSubjects = (data.subjects || []).length > 0;
+  const hasTasks = (data.tasks || []).length > 0;
+  if (hasSubjects || hasTasks) return;
+
+  const backdrop = document.getElementById('onboardingBackdrop');
+  if (!backdrop) return;
+  backdrop.classList.add('open');
+
+  let step = 0;
+  const steps = [
+    { title: 'Selamat Datang di EduFlow!', desc: 'Aplikasi pengelola mata kuliah, tugas, presensi, dan catatan untuk mahasiswa.', btn: 'Mulai' },
+    { title: 'Tambahkan Mata Kuliah', desc: 'Mulai dengan menambahkan mata kuliah yang kamu ambil semester ini.', btn: 'Ke Mata Kuliah', link: 'subjects.html' },
+    { title: 'Catat Jadwal Kuliah', desc: 'Atur jadwal perkuliahan setiap mata kuliah dengan hari, jam, dan ruang.', btn: 'Ke Mata Kuliah', link: 'subjects.html' },
+    { title: 'Kelola Tugas & Presensi', desc: 'Pantau tenggat tugas dan catat kehadiran setiap pertemuan.', btn: 'Mulai Belajar!' },
+  ];
+
+  function renderStep() {
+    const s = steps[step];
+    backdrop.querySelector('.onboarding-title').textContent = s.title;
+    backdrop.querySelector('.onboarding-desc').textContent = s.desc;
+    const btn = backdrop.querySelector('.onboarding-btn');
+    btn.textContent = s.btn;
+    btn.dataset.link = s.link || '';
+    backdrop.querySelector('.onboarding-step').textContent = `${step + 1}/${steps.length}`;
+  }
+
+  backdrop.querySelector('.onboarding-btn').addEventListener('click', () => {
+    const link = backdrop.querySelector('.onboarding-btn').dataset.link;
+    if (link) { window.location.href = link; return; }
+    step++;
+    if (step >= steps.length) {
+      backdrop.classList.remove('open');
+      return;
+    }
+    renderStep();
+  });
+
+  backdrop.querySelector('.onboarding-skip')?.addEventListener('click', () => {
+    backdrop.classList.remove('open');
+  });
+
+  renderStep();
 }
 
 function setText(id, value) {
