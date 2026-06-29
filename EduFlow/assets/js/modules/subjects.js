@@ -192,6 +192,22 @@ export function initSubjects() {
         const updates = { name, code, lecturer, sks, semester, color, ...extra, updatedAt: new Date().toISOString() };
         Object.assign(s, updates);
         db.update('subjects', { id }, updates);
+        data.schedules = data.schedules || [];
+        const existingIdx = data.schedules.findIndex(sc => sc.subjectId === id);
+        if (extra.day && extra.startTime) {
+          const scheduleData = { day: extra.day, startTime: extra.startTime, endTime: extra.endTime, room: extra.room, lecturer, linkMeet: extra.linkMeet };
+          if (existingIdx >= 0) {
+            Object.assign(data.schedules[existingIdx], scheduleData);
+            db.update('schedules', { subjectId: id }, scheduleData);
+          } else {
+            const newSchedule = { id: generateId(), subjectId: id, ...scheduleData };
+            data.schedules.push(newSchedule);
+            db.insert('schedules', newSchedule);
+          }
+        } else if (existingIdx >= 0) {
+          const removed = data.schedules.splice(existingIdx, 1);
+          db.delete('schedules', { subjectId: id });
+        }
         showToast('Mata kuliah diperbarui');
       }
     } else {
