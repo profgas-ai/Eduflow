@@ -107,7 +107,6 @@ function setupNotificationPanel() {
     modal = document.createElement('div');
     modal.className = 'modal-backdrop';
     modal.id = 'notifModal';
-    modal.setAttribute('aria-hidden', 'true');
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     modal.innerHTML = '<div class="modal" style="max-width:420px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h3 style="margin:0">Notifikasi</h3><button class="btn btn-ghost btn-sm" id="markAllReadBtn" style="font-size:12px">Baca Semua</button></div><div id="notifList" style="max-height:400px;overflow-y:auto;margin-bottom:1rem"></div><div class="modal-actions"><button class="btn btn-ghost" onclick="this.closest(\'.modal-backdrop\').classList.remove(\'open\')">Tutup</button></div></div>';

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eduflow-v3';
+const CACHE_NAME = 'eduflow-v4';
 const ROOT = self.location.pathname.replace(/\/service-worker\.js$/, '') || '';
 const STATIC_ASSETS = [
   ROOT + '/',
@@ -74,6 +74,22 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+  const url = new URL(event.request.url);
+  const isJS = url.pathname.endsWith('.js');
+
+  if (isJS) {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      }).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -88,7 +104,7 @@ self.addEventListener('fetch', (event) => {
           cache.put(event.request, responseToCache);
         });
         return response;
-      })      .catch(() => {
+      }).catch(() => {
         if (event.request.mode === 'navigate') {
           return caches.match(ROOT + '/index.html');
         }
