@@ -30,7 +30,6 @@ const STATIC_ASSETS = [
   ROOT + '/assets/js/services/auth.js',
   ROOT + '/assets/js/services/supabase.js',
   ROOT + '/assets/js/services/notification.js',
-  ROOT + '/assets/js/data/dummyData.js',
   ROOT + '/assets/js/components/toast.js',
   ROOT + '/assets/js/components/modal.js',
   ROOT + '/assets/js/components/dialog.js',

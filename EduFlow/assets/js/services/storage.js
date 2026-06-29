@@ -1,9 +1,16 @@
 import { CONFIG } from '../config/config.js';
-import { createDummyData } from '../data/dummyData.js';
 
 let dataCache = null;
 let storageSuffix = '';
 let syncCallback = null;
+
+function emptyData() {
+  return {
+    user: { name: '', email: '', semester: 1, studyProgram: '', university: '', avatar: '', theme: 'system', language: 'id', timezone: 'Asia/Jakarta' },
+    subjects: [], tasks: [], schedules: [], attendanceRecords: [], notes: [], notifications: [], events: [], gradeRecords: [], files: [],
+    settings: { semesterActive: 1, attendanceTarget: 75, reminderEnabled: true, reminderBeforeDeadline: 24, language: 'id', theme: 'system' },
+  };
+}
 
 export function setStorageSuffix(suffix) {
   if (suffix === storageSuffix && dataCache) return;
@@ -84,7 +91,7 @@ export async function loadData() {
     } catch { raw = null; }
   }
 
-  const seed = createDummyData();
+  const seed = emptyData();
   dataCache = seed;
   const json = JSON.stringify(seed);
   localStorage.setItem(storageKey(), json);
@@ -106,7 +113,7 @@ export function getData() {
       const raw = localStorage.getItem(storageKey());
       if (raw) { dataCache = JSON.parse(raw); return dataCache; }
     } catch {}
-    dataCache = createDummyData();
+    dataCache = emptyData();
     return dataCache;
   }
   return dataCache;

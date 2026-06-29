@@ -77,18 +77,27 @@
   margin-bottom: 2px;
 }
 
+.cal-dots {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
 .cal-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--primary);
-  margin: 2px auto 0;
 }
 
 .cal-day-event-count {
   font-size: 10px;
   color: var(--on-surface-variant);
   text-align: center;
+  font-weight: 600;
+  margin-top: 1px;
 }
 
 .day-detail {

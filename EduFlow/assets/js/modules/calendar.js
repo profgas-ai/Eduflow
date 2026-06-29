@@ -45,10 +45,11 @@ export function initCalendar() {
       if (!subj) return;
       const dayNum = typeof s.day === 'number' ? s.day : (dayMap[s.day] ?? -1);
       if (dayNum < 0) return;
+      const now = new Date(); now.setHours(0,0,0,0);
       const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
       for (let d = 1; d <= daysInMonth; d++) {
         const date = new Date(currentYear, currentMonth, d);
-        if (date.getDay() === dayNum) {
+        if (date.getDay() === dayNum && date >= now) {
           combined.push({
             id: s.id + '_' + d,
             title: subj.name,
@@ -87,12 +88,19 @@ export function initCalendar() {
       const isToday = isSameDay(date, today);
       const dayEvents = events.filter(e => isSameDay(e.dateObj, date));
       const hasEvent = dayEvents.length > 0;
+      const typeCounts = {};
+      dayEvents.forEach(e => { typeCounts[e.type] = (typeCounts[e.type] || 0) + 1; });
+      const dotColors = { deadline: '#ef4444', quiz: '#f59e0b', uts: '#3b82f6', uas: '#8b5cf6', presentation: '#10b981', holiday: '#6b7280', class: '#4f46e5', event: '#ec4899' };
+      const dots = Object.entries(typeCounts).map(([t, c]) =>
+        `<div class="cal-dot" style="background:${dotColors[t] || '#4f46e5'}${c > 1 ? ';position:relative' : ''}"></div>`
+      ).join('');
 
       html += `
         <div class="cal-day ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}"
              data-date="${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}">
           <span class="cal-day-num">${day}</span>
-          ${hasEvent ? '<div class="cal-dot"></div>' : ''}
+          ${hasEvent ? `<div class="cal-dots">${dots}</div>` : ''}
+          ${hasEvent && dayEvents.length > 1 ? `<div class="cal-day-event-count">+${dayEvents.length}</div>` : ''}
         </div>`;
     }
 
@@ -106,16 +114,15 @@ export function initCalendar() {
     });
   }
 
-  function renderDayDetail(dateStr, events) {
+  function showDayDetail(dateStr, events) {
     const detailEl = document.getElementById('dayDetail');
     if (!detailEl) return;
 
     const dayEvents = events.filter(e => {
-      const ed = new Date(e.date);
-      const d = new Date(dateStr);
-      return ed.getFullYear() === d.getFullYear() &&
-             ed.getMonth() === d.getMonth() &&
-             ed.getDate() === d.getDate();
+      const d = new Date(dateStr + 'T00:00:00');
+      return e.dateObj.getFullYear() === d.getFullYear() &&
+             e.dateObj.getMonth() === d.getMonth() &&
+             e.dateObj.getDate() === d.getDate();
     });
 
     const subtitle = document.getElementById('dayDetailSubtitle');
