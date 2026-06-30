@@ -182,7 +182,6 @@ async function setupSync() {
       const remoteT = new Date(row.updated_at).getTime();
 
       if (remoteT > localT) {
-        dataCache = remoteData;
         saveData(remoteData);
         console.log('Menggunakan data dari cloud (lebih baru)');
       } else {
