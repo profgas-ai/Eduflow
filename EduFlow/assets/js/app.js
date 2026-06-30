@@ -158,8 +158,9 @@ async function setupSync() {
   setSyncCallback(async (data) => {
     try {
       const json = JSON.stringify(data);
+      const ts = new Date(data.user?.updatedAt || Date.now()).toISOString();
       await db.supabase.from('user_data').upsert(
-        { user_email: auth.currentUser.email, data: json, updated_at: new Date().toISOString() },
+        { user_email: auth.currentUser.email, data: json, updated_at: ts },
         { onConflict: 'user_email' }
       );
     } catch (e) {

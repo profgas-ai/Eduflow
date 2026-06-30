@@ -204,6 +204,20 @@ CREATE INDEX idx_events_date ON events(date);
 CREATE INDEX idx_files_subject ON files(subject_id);
 
 -- ============================================
+-- USER DATA TABLE (cross-device sync blob)
+-- ============================================
+CREATE TABLE user_data (
+  user_email VARCHAR(255) PRIMARY KEY,
+  data JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE user_data ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "User data upsert own" ON user_data
+  FOR ALL USING (auth.jwt() ->> 'email' = user_email);
+
+-- ============================================
 -- ROW LEVEL SECURITY POLICIES
 -- ============================================
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
