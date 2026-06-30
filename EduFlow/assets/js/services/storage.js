@@ -6,7 +6,7 @@ let syncCallback = null;
 
 function emptyData() {
   return {
-    user: { name: '', email: '', semester: 1, studyProgram: '', university: '', avatar: '', theme: 'system', language: 'id', timezone: 'Asia/Jakarta' },
+    user: { name: '', email: '', semester: 1, studyProgram: '', university: '', avatar: '', theme: 'system', language: 'id', timezone: 'Asia/Jakarta', updatedAt: 0 },
     subjects: [], tasks: [], schedules: [], attendanceRecords: [], notes: [], notifications: [], events: [], gradeRecords: [], files: [],
     settings: { semesterActive: 1, attendanceTarget: 75, reminderEnabled: true, reminderBeforeDeadline: 24, language: 'id', theme: 'system' },
   };
@@ -119,14 +119,15 @@ export function getData() {
   return dataCache;
 }
 
-export async function persist() {
+export function persist() {
   if (dataCache) {
-    const ret = saveData(dataCache);
+    dataCache.user.updatedAt = Date.now();
+    saveData(dataCache);
     if (syncCallback) {
-      try { await syncCallback(dataCache); } catch (e) { console.warn('Sync callback failed:', e); }
+      syncCallback(dataCache).catch(e => console.warn('Sync callback failed:', e));
     }
     showSaveIndicator();
-    return ret;
+    return true;
   }
   return false;
 }

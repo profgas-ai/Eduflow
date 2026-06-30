@@ -82,15 +82,15 @@ export class Database {
     this._localDelete(table, match);
   }
 
-  async _localInsertUpdate(table, records, match = null) {
+  _localInsertUpdate(table, records, match = null) {
     const data = getData();
     const key = this._mapTable(table);
     if (!key) return null;
-    await persist();
+    persist();
     return [records].flat();
   }
 
-  async _localDelete(table, match) {
+  _localDelete(table, match) {
     if (!match || !Object.keys(match).length) return;
     const data = getData();
     const key = this._mapTable(table);
@@ -98,7 +98,7 @@ export class Database {
     data[key] = (data[key] || []).filter(r =>
       Object.keys(match).every(k => r[k] === match[k])
     );
-    await persist();
+    persist();
   }
 
   _mapTable(table) {

@@ -1,5 +1,5 @@
 import { escapeHtml } from './utils/helper.js';
-import { loadData, setStorageSuffix, setSyncCallback, loadFromRemote, getData, persist } from './services/storage.js';
+import { loadData, setStorageSuffix, setSyncCallback, getData, saveData, persist } from './services/storage.js';
 import { auth } from './services/auth.js';
 import { db } from './services/database.js';
 import { notifier } from './services/notification.js';
@@ -168,44 +168,31 @@ async function setupSync() {
   });
 
   try {
-    const remote = await loadFromRemote(async () => {
-      const { data, error } = await db.supabase
-        .from('user_data')
-        .select('data')
-        .eq('user_email', auth.currentUser.email)
-        .single();
-      if (error || !data) return null;
-      return typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
-    });
-    if (remote) {
-      console.log('Data loaded from Supabase — overwriting local');
-      location.reload();
-      return;
+    const { data: row, error } = await db.supabase
+      .from('user_data')
+      .select('data, updated_at')
+      .eq('user_email', auth.currentUser.email)
+      .single();
+
+    if (!error && row) {
+      const remoteData = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+      const localData = getData();
+      const localT = localData.user?.updatedAt || 0;
+      const remoteT = new Date(row.updated_at).getTime();
+
+      if (remoteT > localT) {
+        dataCache = remoteData;
+        saveData(remoteData);
+        console.log('Menggunakan data dari cloud (lebih baru)');
+      } else {
+        persist();
+        console.log('Data lokal lebih baru, push ke cloud');
+      }
+    } else {
+      persist();
+      console.log('Tidak ada data remote, push data lokal');
     }
-    console.log('No remote data, using local');
   } catch (e) {
     console.warn('Supabase load failed:', e.message);
   }
-
-  setInterval(async () => {
-    try {
-      const { data, error } = await db.supabase
-        .from('user_data')
-        .select('data')
-        .eq('user_email', auth.currentUser.email)
-        .single();
-      if (!error && data) {
-        const remoteData = typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
-        const localData = getData();
-        const localSubjects = (localData.subjects || []).length;
-        const localTasks = (localData.tasks || []).length;
-        const remoteSubjects = (remoteData.subjects || []).length;
-        const remoteTasks = (remoteData.tasks || []).length;
-        if (remoteSubjects + remoteTasks > localSubjects + localTasks) {
-          console.log('Newer remote data detected, reloading');
-          location.reload();
-        }
-      }
-    } catch (e) { /* silent */ }
-  }, 30000);
 }
