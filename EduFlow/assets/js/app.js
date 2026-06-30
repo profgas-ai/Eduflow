@@ -18,7 +18,7 @@ import { renderBottomNav, setActiveNav } from './components/navbar.js';
   }
   await db.init();
   await loadData();
-  setupSync();
+  await setupSync();
   setupModalBackdropClose();
 
   const page = document.body.dataset.page || 'home';
