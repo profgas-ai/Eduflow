@@ -165,30 +165,19 @@ async function setupSync() {
     }
   });
 
-  const localData = getData();
-  const hasLocalData = localData.subjects?.length || localData.tasks?.length;
-
-  if (!hasLocalData) {
-    try {
-      const remote = await loadFromRemote(async () => {
-        const { data, error } = await db.supabase
-          .from('user_data')
-          .select('data')
-          .eq('user_email', auth.currentUser.email)
-          .single();
-        if (error || !data) return null;
-        return typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
-      });
-      if (remote) console.log('Data loaded from Supabase');
-      else console.log('No remote data, using local');
-    } catch (e) {
-      console.warn('Supabase load failed:', e.message);
-    }
-  } else {
-    console.log('Local data exists, skipping remote load');
-  }
-
-  if (hasLocalData) {
-    persist();
+  try {
+    const remote = await loadFromRemote(async () => {
+      const { data, error } = await db.supabase
+        .from('user_data')
+        .select('data')
+        .eq('user_email', auth.currentUser.email)
+        .single();
+      if (error || !data) return null;
+      return typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
+    });
+    if (remote) console.log('Data loaded from Supabase — overwriting local');
+    else console.log('No remote data, using local');
+  } catch (e) {
+    console.warn('Supabase load failed:', e.message);
   }
 }
