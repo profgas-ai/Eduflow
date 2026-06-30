@@ -8,6 +8,7 @@ import { renderSidebar } from './components/sidebar.js';
 import { renderBottomNav, setActiveNav } from './components/navbar.js';
 
 (async function init() {
+  try {
   await auth.init();
   const userSuffix = auth.currentUser?.id === 'local' ? auth.currentUser?.email : (auth.currentUser?.id || '');
   setStorageSuffix(userSuffix);
@@ -77,6 +78,7 @@ import { renderBottomNav, setActiveNav } from './components/navbar.js';
     const swUrl = new URL('../../service-worker.js', import.meta.url).pathname;
     navigator.serviceWorker.register(swUrl).catch(e => console.warn('SW registration failed:', e));
   }
+  } catch (e) { console.error('App init failed:', e); }
 })();
 
 function applySavedTheme() {
@@ -175,9 +177,35 @@ async function setupSync() {
       if (error || !data) return null;
       return typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
     });
-    if (remote) console.log('Data loaded from Supabase — overwriting local');
-    else console.log('No remote data, using local');
+    if (remote) {
+      console.log('Data loaded from Supabase — overwriting local');
+      location.reload();
+      return;
+    }
+    console.log('No remote data, using local');
   } catch (e) {
     console.warn('Supabase load failed:', e.message);
   }
+
+  setInterval(async () => {
+    try {
+      const { data, error } = await db.supabase
+        .from('user_data')
+        .select('data')
+        .eq('user_email', auth.currentUser.email)
+        .single();
+      if (!error && data) {
+        const remoteData = typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
+        const localData = getData();
+        const localSubjects = (localData.subjects || []).length;
+        const localTasks = (localData.tasks || []).length;
+        const remoteSubjects = (remoteData.subjects || []).length;
+        const remoteTasks = (remoteData.tasks || []).length;
+        if (remoteSubjects + remoteTasks > localSubjects + localTasks) {
+          console.log('Newer remote data detected, reloading');
+          location.reload();
+        }
+      }
+    } catch (e) { /* silent */ }
+  }, 30000);
 }

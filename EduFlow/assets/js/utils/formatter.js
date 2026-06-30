@@ -31,6 +31,7 @@ export function formatDateTime(date) {
 }
 
 export function formatTimeLeft(dueIso) {
+  if (!dueIso) return { text: '', urgent: false };
   const now = new Date();
   const due = new Date(dueIso);
   const diffMs = due - now;

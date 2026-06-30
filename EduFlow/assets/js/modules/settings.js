@@ -97,11 +97,17 @@ export function initSettings() {
   }
 
   async function handleClearData() {
-    if (confirm('Yakin ingin menghapus semua data? Tindakan ini tidak dapat dibatalkan.')) {
-      await clearData();
-      showToast('Data dihapus');
-      setTimeout(() => location.reload(), 1000);
-    }
+    const { showDialog } = await import('../components/dialog.js');
+    const confirmed = await showDialog({
+      title: 'Hapus Semua Data',
+      message: 'Yakin ingin menghapus semua data? Tindakan ini tidak dapat dibatalkan.',
+      confirmText: 'Hapus',
+      danger: true,
+    });
+    if (!confirmed) return;
+    await clearData();
+    showToast('Data dihapus');
+    setTimeout(() => location.reload(), 1000);
   }
 
   function handleAvatarUpload() {

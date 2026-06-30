@@ -12,6 +12,7 @@ export function setupGpaCalculator(data) {
       (data.subjects || []).forEach(s => {
         data.gradeRecords.push({ name: s.name, sks: s.sks, grade: 'B+' });
       });
+      if ((data.subjects || []).length > 0) persist();
     }
   }
 

@@ -2,7 +2,7 @@ import { escapeHtml } from '../utils/helper.js';
 import { formatDate, formatTimeLeft } from '../utils/formatter.js';
 
 export function createSubjectCard(subject) {
-  const meetingPct = subject.totalSessions > 0
+  const meetingPct = subject.totalSessions > 0 && subject.totalMeetings > 0
     ? Math.round((subject.currentMeeting / subject.totalMeetings) * 100)
     : 0;
   return `

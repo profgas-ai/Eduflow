@@ -92,7 +92,7 @@ function renderWeeklySummary(data) {
   const tasks = data.tasks || [];
   const subjects = data.subjects || [];
   const schedules = data.schedules || [];
-  const now = new Date();
+  const now = new Date(); now.setHours(0, 0, 0, 0);
   const endOfWeek = new Date(now);
   endOfWeek.setDate(now.getDate() + (7 - now.getDay()));
   endOfWeek.setHours(23, 59, 59, 999);
@@ -103,7 +103,7 @@ function renderWeeklySummary(data) {
     return d >= now && d <= endOfWeek;
   }).length;
 
-  const today = getDayName(now, false);
+  const today = getDayName(new Date(), false);
   const todayClasses = schedules.filter(s => s.day === today).length;
   const notStarted = tasks.filter(t => t.status === 'pending' && new Date(t.deadline) <= endOfWeek).length;
   const overdue = tasks.filter(t => t.status !== 'completed' && new Date(t.deadline) < now).length;
@@ -186,7 +186,7 @@ function renderWeeklyDeadline(data) {
   if (!el) return;
   const tasks = data.tasks || [];
   const subjects = data.subjects || [];
-  const now = new Date();
+  const now = new Date(); now.setHours(0, 0, 0, 0);
   const endOfWeek = new Date(now);
   endOfWeek.setDate(now.getDate() + (7 - now.getDay()));
   endOfWeek.setHours(23, 59, 59, 999);
@@ -275,7 +275,7 @@ function setupQuickAdd(data) {
 
   const saveBtn = document.getElementById('qaSaveBtn');
   if (saveBtn) {
-    saveBtn.addEventListener('click', () => {
+    saveBtn.addEventListener('click', async () => {
       const title = document.getElementById('qaTitle')?.value?.trim();
       const due = document.getElementById('qaDue')?.value;
       const subjectId = document.getElementById('qaSubject')?.value;
@@ -289,7 +289,7 @@ function setupQuickAdd(data) {
         createdAt: new Date().toISOString(), completedAt: null,
       };
       data.tasks.push(newTask);
-      db.insert('tasks', newTask);
+      await db.insert('tasks', newTask);
       document.getElementById('quickAddBackdrop')?.classList.remove('open');
       showToast('Tugas ditambahkan');
       setTimeout(() => location.reload(), 500);
@@ -393,7 +393,7 @@ function setupQuickAttend(data) {
     });
   }
 
-  function quickAttend(subjectId, status) {
+  async function quickAttend(subjectId, status) {
     data.attendanceRecords = data.attendanceRecords || [];
     const meeting = data.attendanceRecords.filter(r => r.subjectId === subjectId).length + 1;
     const record = {
@@ -402,7 +402,7 @@ function setupQuickAttend(data) {
       notes: '', createdAt: new Date().toISOString(),
     };
     data.attendanceRecords.push(record);
-    db.insert('attendance', record);
+    await db.insert('attendance', record);
     showToast(status === 'hadir' ? 'Ditandai Hadir' : 'Ditandai Alpha');
     renderQuickAttend();
   }

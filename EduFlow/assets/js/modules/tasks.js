@@ -74,7 +74,7 @@ export function initTasks() {
     bindTaskEvents();
   }
 
-  function toggleSubtask(taskId, idx) {
+  async function toggleSubtask(taskId, idx) {
     const t = data.tasks.find(x => x.id === taskId);
     if (!t) return;
     const checklist = t.checklist || [];
@@ -90,7 +90,7 @@ export function initTasks() {
         t.completedAt = null;
       }
       t.progress = progress;
-      db.update('tasks', { id: taskId }, { checklist, progress, status: t.status, completedAt: t.completedAt });
+      await db.update('tasks', { id: taskId }, { checklist, progress, status: t.status, completedAt: t.completedAt });
       render();
     }
   }
@@ -123,14 +123,14 @@ export function initTasks() {
     });
   }
 
-  function toggleTask(id) {
+  async function toggleTask(id) {
     const t = data.tasks.find(x => x.id === id);
     if (t) {
       const updates = t.status === 'completed'
         ? { status: 'pending', completedAt: null }
         : { status: 'completed', completedAt: new Date().toISOString() };
       Object.assign(t, updates);
-      db.update('tasks', { id }, updates);
+      await db.update('tasks', { id }, updates);
       render();
     }
   }
@@ -145,20 +145,25 @@ export function initTasks() {
     });
     if (!confirmed) return;
     data.tasks = data.tasks.filter(x => x.id !== id);
-    db.delete('tasks', { id });
+    await db.delete('tasks', { id });
     render();
   }
 
   function getSubtaskInputs() {
-    const inputs = document.querySelectorAll('.subtask-input');
-    return Array.from(inputs).map(i => ({ text: i.value.trim(), done: false })).filter(s => s.text);
+    const rows = document.querySelectorAll('.subtask-row');
+    return Array.from(rows).map(row => {
+      const input = row.querySelector('.subtask-input');
+      const checkbox = row.querySelector('.subtask-done');
+      return { text: input?.value?.trim() || '', done: checkbox?.checked || false };
+    }).filter(s => s.text);
   }
 
   function renderSubtaskInputs(items) {
     const container = document.getElementById('subtaskContainer');
     if (!container) return;
     container.innerHTML = (items.length === 0 ? [{ text: '', done: false }] : items).map((item, i) => `
-      <div class="subtask-row" style="display:flex;gap:0.4rem;margin-bottom:0.3rem">
+      <div class="subtask-row" style="display:flex;gap:0.4rem;margin-bottom:0.3rem;align-items:center">
+        <input type="checkbox" class="subtask-done" ${item.done ? 'checked' : ''} style="accent-color:var(--primary);width:14px;height:14px;margin:0">
         <input type="text" class="subtask-input" value="${escapeHtml(item.text)}" placeholder="cth: Bab 1" style="flex:1;padding:0.4rem 0.6rem;border:1px solid var(--outline-variant);border-radius:var(--radius-sm);background:var(--surface-container);font-size:13px">
         <button class="icon-action subtask-remove" type="button" style="font-size:16px">×</button>
       </div>
@@ -211,7 +216,7 @@ export function initTasks() {
     openModal('taskModalBackdrop');
   }
 
-  function saveTask() {
+  async function saveTask() {
     const id = document.getElementById('taskId').value;
     const title = sanitizeInput(document.getElementById('tTitle')?.value || '');
     const desc = document.getElementById('tDesc')?.value?.trim() || '';
@@ -237,7 +242,7 @@ export function initTasks() {
           subjectId, priority, category, progress, notes, references: refs, checklist, reminder,
         };
         Object.assign(t, updates);
-        db.update('tasks', { id }, updates);
+        await db.update('tasks', { id }, updates);
         showToast('Tugas diperbarui');
       }
     } else {
@@ -251,7 +256,7 @@ export function initTasks() {
         createdAt: new Date().toISOString(), completedAt: null,
       };
       data.tasks.push(newTask);
-      db.insert('tasks', newTask);
+      await db.insert('tasks', newTask);
       showToast('Tugas ditambahkan');
     }
     closeModal('taskModalBackdrop');

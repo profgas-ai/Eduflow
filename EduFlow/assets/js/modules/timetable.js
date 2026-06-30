@@ -14,13 +14,15 @@ export function renderSchedule(data) {
     return;
   }
   const now = new Date();
-  const currentTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
   const todayDate = now.toISOString().split('T')[0];
   const records = data.attendanceRecords || [];
 
+  function toMin(t) { if (!t) return 0; const [h,m] = t.split(':').map(Number); return h*60+(m||0); }
+
   el.innerHTML = todaySchedule.slice(0, 4).map(s => {
     const subj = subjects.find(x => x.id === s.subjectId);
-    const isPast = s.endTime && s.endTime <= currentTime;
+    const isPast = s.endTime && toMin(s.endTime) <= currentMinutes;
     const alreadyAttended = subj ? records.some(r => r.subjectId === subj.id && r.date.startsWith(todayDate)) : false;
     return `<div class="class-card ${isPast ? 'class-past' : ''}" data-subject-id="${subj ? subj.id : ''}">
       <div class="accent-bar" style="background:${subj ? subj.color : 'var(--primary)'}"></div>
@@ -40,22 +42,22 @@ export function renderSchedule(data) {
   }).join('');
 
   el.querySelectorAll('.qa-hadir-sch').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', async (e) => {
       e.stopPropagation();
-      quickAttendSchedule(data, btn.dataset.id, 'hadir');
+      await quickAttendSchedule(data, btn.dataset.id, 'hadir');
       renderSchedule(data);
     });
   });
   el.querySelectorAll('.qa-alpha-sch').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', async (e) => {
       e.stopPropagation();
-      quickAttendSchedule(data, btn.dataset.id, 'alpha');
+      await quickAttendSchedule(data, btn.dataset.id, 'alpha');
       renderSchedule(data);
     });
   });
 }
 
-function quickAttendSchedule(data, subjectId, status) {
+async function quickAttendSchedule(data, subjectId, status) {
   data.attendanceRecords = data.attendanceRecords || [];
   const meeting = data.attendanceRecords.filter(r => r.subjectId === subjectId).length + 1;
   const record = {
@@ -64,7 +66,7 @@ function quickAttendSchedule(data, subjectId, status) {
     notes: '', createdAt: new Date().toISOString(),
   };
   data.attendanceRecords.push(record);
-  db.insert('attendance', record);
+  await db.insert('attendance', record);
   showToast(status === 'hadir' ? '✓ Hadir dicatat' : '✕ Alpha dicatat');
 }
 
@@ -86,6 +88,12 @@ function renderTimetable(data) {
   if (!grid) return;
   const schedules = data.schedules || [];
   const subjects = data.subjects || [];
+  function toMinutes(t) {
+    if (!t) return 0;
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + (m || 0);
+  }
+
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
   const hours = [];
   for (let h = 7; h <= 20; h++) hours.push(String(h).padStart(2, '0') + ':00');
@@ -96,14 +104,15 @@ function renderTimetable(data) {
   html += '</tr></thead><tbody>';
 
   hours.forEach(hour => {
+    const hourMin = toMinutes(hour);
     html += `<tr><td style="padding:4px 6px;color:var(--on-surface-variant);border-bottom:1px solid var(--outline-variant);font-size:11px">${hour}</td>`;
     days.forEach(day => {
-      const classes = schedules.filter(s => s.day === day && s.startTime <= hour && s.endTime > hour);
+      const classes = schedules.filter(s => s.day === day && toMinutes(s.startTime) <= hourMin && toMinutes(s.endTime) > hourMin);
       if (classes.length > 0) {
         const s = classes[0];
         const subj = subjects.find(x => x.id === s.subjectId);
         const color = subj ? subj.color : 'var(--primary)';
-        const isStart = s.startTime === hour;
+        const isStart = toMinutes(s.startTime) === hourMin;
         html += `<td style="padding:0;border-bottom:1px solid var(--outline-variant);vertical-align:middle;text-align:center;background:${isStart ? color + '18' : 'transparent'}">
           ${isStart ? `<div style="padding:2px 4px;font-weight:600;color:${color};font-size:11px">${subj ? subj.name : ''}</div><div style="font-size:10px;color:var(--on-surface-variant)">${s.room || ''}</div>` : ''}
         </td>`;

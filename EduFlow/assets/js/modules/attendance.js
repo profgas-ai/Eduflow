@@ -1,4 +1,4 @@
-import { getData } from '../services/storage.js';
+import { getData, persist } from '../services/storage.js';
 import { db } from '../services/database.js';
 import { escapeHtml, generateId } from '../utils/helper.js';
 import { createAttendanceCard } from '../components/card.js';
@@ -68,11 +68,16 @@ export function initAttendance() {
 
   function recalcAttendance(subjects) {
     const records = data.attendanceRecords || [];
+    let changed = false;
     subjects.forEach(s => {
       const subjectRecords = records.filter(r => r.subjectId === s.id);
-      s.totalSessions = subjectRecords.length;
-      s.present = subjectRecords.filter(r => r.status === 'hadir').length;
+      const newTotal = subjectRecords.length;
+      const newPresent = subjectRecords.filter(r => r.status === 'hadir').length;
+      if (s.totalSessions !== newTotal || s.present !== newPresent) changed = true;
+      s.totalSessions = newTotal;
+      s.present = newPresent;
     });
+    if (changed) persist();
   }
 
   function bindAttendanceEvents() {
@@ -164,7 +169,7 @@ export function initAttendance() {
     openModal('historyModal');
   }
 
-  render();
+  render().catch(e => console.warn('Attendance render failed:', e));
 }
 
 function setText(id, value) {

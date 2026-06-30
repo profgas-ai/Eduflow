@@ -119,10 +119,12 @@ export function getData() {
   return dataCache;
 }
 
-export function persist() {
+export async function persist() {
   if (dataCache) {
     const ret = saveData(dataCache);
-    if (syncCallback) syncCallback(dataCache);
+    if (syncCallback) {
+      try { await syncCallback(dataCache); } catch (e) { console.warn('Sync callback failed:', e); }
+    }
     showSaveIndicator();
     return ret;
   }
@@ -172,7 +174,7 @@ export async function importData(jsonString) {
   try {
     const data = JSON.parse(jsonString);
     if (!data.user || !Array.isArray(data.subjects)) throw new Error('Format data tidak valid');
-    if (data.subjects.some(s => !s.id || !s.name || !s.code)) throw new Error('Data subjects tidak lengkap');
+    if (data.subjects.some(s => !s.id || !s.name)) throw new Error('Data subjects tidak lengkap');
     if (!Array.isArray(data.tasks)) data.tasks = [];
     if (!data.notifications) data.notifications = [];
     saveData(data);

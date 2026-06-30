@@ -117,13 +117,12 @@ export function initCalendar() {
   function showDayDetail(dateStr, events) {
     const detailEl = document.getElementById('dayDetail');
     if (!detailEl) return;
+    const parts = dateStr.split('-');
+    const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
 
-    const dayEvents = events.filter(e => {
-      const d = new Date(dateStr + 'T00:00:00');
-      return e.dateObj.getFullYear() === d.getFullYear() &&
-             e.dateObj.getMonth() === d.getMonth() &&
-             e.dateObj.getDate() === d.getDate();
-    });
+    const dayEvents = events.filter(e =>
+      isSameDay(e.dateObj, d)
+    );
 
     const subtitle = document.getElementById('dayDetailSubtitle');
     if (subtitle) subtitle.textContent = formatDate(dateStr, 'full');

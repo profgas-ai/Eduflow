@@ -60,12 +60,14 @@ export class AuthService {
       return data.user;
     }
     const stored = JSON.parse(localStorage.getItem('eduflow_credentials') || '{}');
-    const storedHash = stored[email];
-    if (!storedHash) throw new Error('Email tidak terdaftar');
-    if (storedHash !== _hashPassword(password)) throw new Error('Password salah');
+    const entry = stored[email];
+    if (!entry) throw new Error('Email tidak terdaftar');
+    const hash = typeof entry === 'string' ? entry : entry.hash;
+    const name = typeof entry === 'string' ? undefined : entry.name;
+    if (hash !== _hashPassword(password)) throw new Error('Password salah');
     const data = getData();
     data.user.email = email;
-    data.user.name = stored.name || email.split('@')[0];
+    data.user.name = name || email.split('@')[0];
     persist();
     this.currentUser = { email, id: 'local', name: data.user.name };
     localStorage.setItem('eduflow_user', JSON.stringify(this.currentUser));
@@ -81,8 +83,7 @@ export class AuthService {
       return data.user;
     }
     const creds = JSON.parse(localStorage.getItem('eduflow_credentials') || '{}');
-    creds[email] = _hashPassword(password);
-    creds.name = name || email.split('@')[0];
+    creds[email] = { hash: _hashPassword(password), name: name || email.split('@')[0] };
     localStorage.setItem('eduflow_credentials', JSON.stringify(creds));
     const data = getData();
     data.user.email = email;
@@ -136,10 +137,17 @@ export class AuthService {
       await this.updateProfile({ avatar: publicUrl });
       return publicUrl;
     }
-    const data = getData();
-    data.user.avatar = URL.createObjectURL(file);
-    persist();
-    return data.user.avatar;
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const data = getData();
+        data.user.avatar = reader.result;
+        persist();
+        resolve(reader.result);
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
   }
 
   onChange(callback) {

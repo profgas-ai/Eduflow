@@ -81,6 +81,14 @@ function toggleMoreMenu(currentPage) {
     return;
   }
 
+  const closeOutside = (e) => {
+    if (!menu.contains(e.target) && !e.target.closest('[data-page="more"]')) {
+      menu.style.display = 'none';
+      document.removeEventListener('click', closeOutside);
+    }
+  };
+  setTimeout(() => document.addEventListener('click', closeOutside), 0);
+
   const items = [
     { page: 'calendar', href: 'calendar.html', label: 'Kalender', icon: 'calendar-month' },
     { page: 'notes', href: 'notes.html', label: 'Catatan', icon: 'note' },

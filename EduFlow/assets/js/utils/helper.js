@@ -107,8 +107,8 @@ export function renderMarkdown(md) {
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
   html = html.replace(/`(.+?)`/g, '<code>$1</code>');
-  html = html.replace(/- (.+)/g, '<li>$1</li>');
-  html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/(?:<li>.*?<\/li>\n?)+/g, '<ul>$&</ul>');
   html = html.replace(/\n/g, '<br>');
   return html;
 }
