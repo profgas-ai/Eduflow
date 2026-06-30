@@ -150,16 +150,6 @@ export function setSyncCallback(fn) {
   syncCallback = fn;
 }
 
-export async function loadFromRemote(loaderFn) {
-  const remote = await loaderFn();
-  if (remote) {
-    dataCache = remote;
-    saveData(remote);
-    return remote;
-  }
-  return null;
-}
-
 export async function exportData() {
   const data = getData();
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

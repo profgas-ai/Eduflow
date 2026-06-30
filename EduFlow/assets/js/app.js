@@ -10,7 +10,7 @@ import { renderBottomNav, setActiveNav } from './components/navbar.js';
 (async function init() {
   try {
   await auth.init();
-  const userSuffix = auth.currentUser?.id === 'local' ? auth.currentUser?.email : (auth.currentUser?.id || '');
+  const userSuffix = auth.currentUser?.email || '';
   setStorageSuffix(userSuffix);
   if (!auth.isAuthenticated) {
     window.location.href = 'login.html';

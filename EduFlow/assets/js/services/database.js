@@ -96,7 +96,7 @@ export class Database {
     const key = this._mapTable(table);
     if (!key) return;
     data[key] = (data[key] || []).filter(r =>
-      Object.keys(match).every(k => r[k] === match[k])
+      !Object.keys(match).every(k => r[k] === match[k])
     );
     persist();
   }
