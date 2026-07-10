@@ -89,7 +89,7 @@
 }
 </style>
 </head>
-<body>
+<body class="auth-loading">
 <div class="auth-page">
   <div class="auth-card">
     <div class="auth-logo">
@@ -154,6 +154,7 @@ import { showToast } from './assets/js/components/toast.js';
 import { CONFIG } from './assets/js/config/config.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+  document.body.classList.remove('auth-loading');
   await auth.init();
   if (auth.isAuthenticated) {
     window.location.href = 'index.html';

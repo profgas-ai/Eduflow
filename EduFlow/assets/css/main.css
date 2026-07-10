@@ -1,3 +1,5 @@
+body.auth-loading { display: none; }
+
 :root {
   --surface: #f8f9fa;
   --surface-container-lowest: #ffffff;

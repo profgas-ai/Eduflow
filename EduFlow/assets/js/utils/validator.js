@@ -27,12 +27,12 @@ export function number(value, fieldName = 'Field') {
 }
 
 export function min(value, min, fieldName = 'Field') {
-  if (value && Number(value) < min) return `${fieldName} minimal ${min}`;
+  if (value !== null && value !== undefined && value !== '' && Number(value) < min) return `${fieldName} minimal ${min}`;
   return null;
 }
 
 export function max(value, max, fieldName = 'Field') {
-  if (value && Number(value) > max) return `${fieldName} maksimal ${max}`;
+  if (value !== null && value !== undefined && value !== '' && Number(value) > max) return `${fieldName} maksimal ${max}`;
   return null;
 }
 
@@ -46,12 +46,33 @@ export function url(value) {
   }
 }
 
+export function alphaNumeric(value, fieldName = 'Field') {
+  if (value && !/^[a-zA-Z0-9\s]+$/.test(value)) return `${fieldName} hanya boleh huruf dan angka`;
+  return null;
+}
+
+export function noLeadingTrailingSpace(value, fieldName = 'Field') {
+  if (value && (value.startsWith(' ') || value.endsWith(' '))) return `${fieldName} tidak boleh diawali/diakhiri spasi`;
+  return null;
+}
+
+export function unique(value, list, fieldName = 'Field') {
+  if (list && list.some(item => item.toLowerCase() === value.toLowerCase())) return `${fieldName} sudah ada`;
+  return null;
+}
+
 export function validateForm(rules, data = {}) {
   const errors = {};
   for (const [field, validators] of Object.entries(rules)) {
     for (const validator of validators) {
+      let fn = validator;
+      let args = [];
+      if (Array.isArray(validator)) {
+        fn = validator[0];
+        args = validator.slice(1);
+      }
       const value = data[field];
-      const error = validator(value, field);
+      const error = fn(value, ...args, field);
       if (error) {
         errors[field] = error;
         break;

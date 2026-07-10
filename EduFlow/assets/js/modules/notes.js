@@ -1,8 +1,11 @@
-import { getData } from '../services/storage.js';
+import { getData, persist } from '../services/storage.js';
 import { db } from '../services/database.js';
-import { escapeHtml, generateId, sanitizeInput, debounce, renderMarkdown } from '../utils/helper.js';
-import { formatDate } from '../utils/formatter.js';
-import { showToast } from '../components/toast.js';
+import { escapeHtml, generateId, sanitizeInput, debounce } from '../utils/helper.js';
+import { openModal, closeModal } from '../components/modal.js';
+import { showToast, showUndoToast } from '../components/toast.js';
+import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
+
+let undoSnapshot = null;
 import { openModal, closeModal } from '../components/modal.js';
 
 export function initNotes() {
@@ -148,8 +151,17 @@ export function initNotes() {
       confirmText: 'Hapus', danger: true,
     });
     if (!confirmed) return;
+    const n = data.notes.find(x => x.id === id);
+    undoSnapshot = n ? { ...n } : null;
     data.notes = (data.notes || []).filter(n => n.id !== id);
     db.delete('notes', { id });
+    showUndoToast('Catatan dihapus', () => {
+      if (undoSnapshot) {
+        data.notes.push(undoSnapshot);
+        persist();
+        render();
+      }
+    });
     render();
   }
 
@@ -185,7 +197,7 @@ export function initNotes() {
       ).join('');
   }
 
-  function saveNote() {
+  async function saveNote() {
     const id = document.getElementById('noteId').value;
     const title = sanitizeInput(document.getElementById('noteTitle')?.value || 'Untitled');
     const content = document.getElementById('noteContent')?.value || '';
@@ -194,6 +206,8 @@ export function initNotes() {
 
     if (!title) { showToast('Judul catatan wajib diisi'); return; }
 
+    const btn = document.getElementById('noteSaveBtn');
+    showBtnLoading(btn, 'Menyimpan...');
     const now = new Date().toISOString();
 
     if (id) {
@@ -201,8 +215,9 @@ export function initNotes() {
       if (note) {
         const updates = { title, content, tags, subjectId, updatedAt: now };
         Object.assign(note, updates);
-        db.update('notes', { id }, updates);
+        await db.update('notes', { id }, updates);
         showToast('Catatan diperbarui');
+        hideBtnLoading(btn);
       }
     } else {
       data.notes = data.notes || [];
@@ -212,9 +227,11 @@ export function initNotes() {
         createdAt: now, updatedAt: now,
       };
       data.notes.push(newNote);
-      db.insert('notes', newNote);
+      await db.insert('notes', newNote);
       showToast('Catatan ditambahkan');
+      hideBtnLoading(btn);
     }
+    hideBtnLoading(btn);
     closeModal('noteModalBackdrop');
     render();
   }

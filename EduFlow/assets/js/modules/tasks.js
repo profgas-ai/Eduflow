@@ -1,9 +1,12 @@
-import { getData } from '../services/storage.js';
+import { getData, persist } from '../services/storage.js';
 import { db } from '../services/database.js';
 import { escapeHtml, generateId, sanitizeInput, debounce } from '../utils/helper.js';
 import { createTaskCard } from '../components/card.js';
 import { openModal, closeModal } from '../components/modal.js';
-import { showToast } from '../components/toast.js';
+import { showToast, showUndoToast } from '../components/toast.js';
+import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
+
+let undoSnapshot = null;
 
 export function initTasks() {
   const data = getData();
@@ -145,8 +148,17 @@ export function initTasks() {
       danger: true,
     });
     if (!confirmed) return;
+    const t = data.tasks.find(x => x.id === id);
+    undoSnapshot = t ? { ...t } : null;
     data.tasks = data.tasks.filter(x => x.id !== id);
     await db.delete('tasks', { id });
+    showUndoToast('Tugas dihapus', () => {
+      if (undoSnapshot) {
+        data.tasks.push(undoSnapshot);
+        persist();
+        render();
+      }
+    });
     render();
   }
 
@@ -239,6 +251,9 @@ export function initTasks() {
       if (!ok) return;
     }
 
+    const btn = document.getElementById('taskSaveBtn');
+    showBtnLoading(btn, 'Menyimpan...');
+
     if (id) {
       const t = data.tasks.find(x => x.id === id);
       if (t) {
@@ -250,6 +265,7 @@ export function initTasks() {
         Object.assign(t, updates);
         await db.update('tasks', { id }, updates);
         showToast('Tugas diperbarui');
+        hideBtnLoading(btn);
       }
     } else {
       const newTask = {
@@ -264,7 +280,9 @@ export function initTasks() {
       data.tasks.push(newTask);
       await db.insert('tasks', newTask);
       showToast('Tugas ditambahkan');
+      hideBtnLoading(btn);
     }
+    hideBtnLoading(btn);
     closeModal('taskModalBackdrop');
     render();
   }

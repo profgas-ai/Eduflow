@@ -1,6 +1,7 @@
 import { getData, persist, exportData, importData, clearData, getStorageInfo } from '../services/storage.js';
 import { auth } from '../services/auth.js';
 import { showToast } from '../components/toast.js';
+import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
 import { CONFIG } from '../config/config.js';
 
 export function initSettings() {
@@ -37,7 +38,7 @@ export function initSettings() {
     setText('storageSize', info.sizeKB + ' KB');
   }
 
-  function saveProfile() {
+  async function saveProfile() {
     const name = document.getElementById('settingsName')?.value?.trim();
     const email = document.getElementById('settingsEmail')?.value?.trim();
     const semester = Math.max(1, Number(document.getElementById('settingsSemester')?.value) || 1);
@@ -46,9 +47,12 @@ export function initSettings() {
 
     if (!name) { showToast('Nama wajib diisi'); return; }
 
+    const btn = document.getElementById('saveProfileBtn');
+    showBtnLoading(btn, 'Menyimpan...');
     Object.assign(user, { name, email, semester, studyProgram, university });
     persist();
     showToast('Profil diperbarui');
+    hideBtnLoading(btn);
   }
 
   function saveAppearance() {
@@ -117,6 +121,8 @@ export function initSettings() {
       danger: true,
     });
     if (!confirmed) return;
+    const btn = document.getElementById('clearDataBtn');
+    showBtnLoading(btn, 'Menghapus...');
     await clearData();
     showToast('Data dihapus');
     setTimeout(() => location.reload(), 1000);

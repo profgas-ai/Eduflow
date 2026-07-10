@@ -3,7 +3,10 @@ import { db } from '../services/database.js';
 import { escapeHtml, generateId, sanitizeInput } from '../utils/helper.js';
 import { createSubjectCard } from '../components/card.js';
 import { openModal, closeModal } from '../components/modal.js';
-import { showToast } from '../components/toast.js';
+import { showToast, showUndoToast } from '../components/toast.js';
+import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
+import { required, maxLength, min, max, validateForm } from '../utils/validator.js';
+import { undoManager } from '../services/undo.js';
 import { CONFIG } from '../config/config.js';
 
 export function initSubjects() {
@@ -151,13 +154,22 @@ export function initSubjects() {
       danger: true,
     });
     if (!confirmed) return;
+    const snapshot = { subjects: data.subjects.filter(x => x.id === id), tasks: data.tasks.filter(t => t.subjectId === id), schedules: (data.schedules||[]).filter(c => c.subjectId === id), attendanceRecords: (data.attendanceRecords||[]).filter(a => a.subjectId === id), notes: (data.notes||[]).filter(n => n.subjectId === id) };
     data.subjects = data.subjects.filter(x => x.id !== id);
     data.tasks = data.tasks.filter(t => t.subjectId !== id);
     data.schedules = (data.schedules || []).filter(c => c.subjectId !== id);
     data.attendanceRecords = (data.attendanceRecords || []).filter(a => a.subjectId !== id);
     data.notes = (data.notes || []).filter(n => n.subjectId !== id);
     persist();
-    showToast('Mata kuliah dihapus');
+    showUndoToast('Mata kuliah dihapus', () => {
+      data.subjects.push(...snapshot.subjects);
+      data.tasks.push(...snapshot.tasks);
+      data.schedules.push(...snapshot.schedules);
+      data.attendanceRecords.push(...snapshot.attendanceRecords);
+      data.notes.push(...snapshot.notes);
+      persist();
+      render();
+    });
     const sems = getSemesters();
     if (!sems.includes(activeSemester)) activeSemester = sems[0] || null;
     render();
@@ -171,7 +183,19 @@ export function initSubjects() {
     const sks = Number(document.getElementById('sSks')?.value) || 3;
     const semester = Number(document.getElementById('sSemester')?.value) || CONFIG.DEFAULT_SEMESTER;
     const color = document.getElementById('sColor')?.value || '#4f46e5';
-    if (!name) { showToast('Nama mata kuliah wajib diisi'); return; }
+
+    const errors = validateForm({
+      name: [[required], [maxLength, 100]],
+      sks: [[min, 1], [max, 24]],
+      semester: [[min, 1], [max, 16]],
+    }, { name, sks, semester });
+    if (errors) {
+      const first = Object.values(errors)[0];
+      showToast(first); return;
+    }
+    if (!id && code && data.subjects.some(s => s.code?.toLowerCase() === code.toLowerCase())) {
+      showToast('Kode mata kuliah sudah ada'); return;
+    }
 
     const extra = {
       lecturerEmail: document.getElementById('sLecturerEmail')?.value || '',
@@ -186,6 +210,8 @@ export function initSubjects() {
       endTime: document.getElementById('sEndTime')?.value || '',
     };
 
+    const btn = document.getElementById('subjectSaveBtn');
+    showBtnLoading(btn, 'Menyimpan...');
     if (id) {
       const s = data.subjects.find(x => x.id === id);
       if (s) {
@@ -210,6 +236,7 @@ export function initSubjects() {
         }
         await db.update('subjects', { id }, updates);
         showToast('Mata kuliah diperbarui');
+        hideBtnLoading(btn);
       }
     } else {
       const newSubject = {
@@ -231,8 +258,10 @@ export function initSubjects() {
       }
       await db.insert('subjects', newSubject);
       showToast('Mata kuliah ditambahkan');
+      hideBtnLoading(btn);
       activeSemester = semester;
     }
+    hideBtnLoading(btn);
     closeModal('subjectModalBackdrop');
     render();
   }

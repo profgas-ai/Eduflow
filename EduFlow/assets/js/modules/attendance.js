@@ -2,7 +2,9 @@ import { getData, persist } from '../services/storage.js';
 import { db } from '../services/database.js';
 import { escapeHtml, generateId } from '../utils/helper.js';
 import { createAttendanceCard } from '../components/card.js';
-import { showToast } from '../components/toast.js';
+import { openModal, closeModal } from '../components/modal.js';
+import { showToast, showUndoToast } from '../components/toast.js';
+import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { CONFIG } from '../config/config.js';
 import { chartManager } from '../components/chart.js';
@@ -92,7 +94,7 @@ export function initAttendance() {
     });
   }
 
-  function markAttendance(id, status) {
+  async function markAttendance(id, status) {
     const s = data.subjects.find(x => x.id === id);
     if (!s) return;
     data.attendanceRecords = data.attendanceRecords || [];
@@ -160,11 +162,24 @@ export function initAttendance() {
     });
 
     container.querySelectorAll('.btn-delete-record').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         const recordId = btn.dataset.id;
+        const { showDialog } = await import('../components/dialog.js');
+        const confirmed = await showDialog({
+          title: 'Hapus Record', message: 'Hapus record presensi ini?',
+          confirmText: 'Hapus', danger: true,
+        });
+        if (!confirmed) return;
+        const rec = data.attendanceRecords.find(r => r.id === recordId);
         data.attendanceRecords = data.attendanceRecords.filter(r => r.id !== recordId);
         db.delete('attendance', { id: recordId });
-        showToast('Record dihapus');
+        showUndoToast('Record dihapus', () => {
+          if (rec) {
+            data.attendanceRecords.push(rec);
+            persist();
+            render();
+          }
+        });
         closeModal('historyModal');
         render();
       });
