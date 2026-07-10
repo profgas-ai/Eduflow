@@ -5,6 +5,7 @@ import { createTaskCard } from '../components/card.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { showToast, showUndoToast } from '../components/toast.js';
 import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
+import { pushActivity } from '../services/activity.js';
 
 let undoSnapshot = null;
 
@@ -152,6 +153,7 @@ export function initTasks() {
     undoSnapshot = t ? { ...t } : null;
     data.tasks = data.tasks.filter(x => x.id !== id);
     await db.delete('tasks', { id });
+    pushActivity('task_delete', 'Menghapus tugas', undoSnapshot?.title || '');
     showUndoToast('Tugas dihapus', () => {
       if (undoSnapshot) {
         data.tasks.push(undoSnapshot);
@@ -264,7 +266,8 @@ export function initTasks() {
         };
         Object.assign(t, updates);
         await db.update('tasks', { id }, updates);
-        showToast('Tugas diperbarui');
+        pushActivity('task_update', 'Mengedit tugas', title);
+      showToast('Tugas diperbarui');
         hideBtnLoading(btn);
       }
     } else {
@@ -279,6 +282,7 @@ export function initTasks() {
       };
       data.tasks.push(newTask);
       await db.insert('tasks', newTask);
+      pushActivity('task_add', 'Menambah tugas', title);
       showToast('Tugas ditambahkan');
       hideBtnLoading(btn);
     }

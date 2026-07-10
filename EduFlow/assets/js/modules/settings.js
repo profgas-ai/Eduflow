@@ -2,6 +2,7 @@ import { getData, persist, exportData, importData, clearData, getStorageInfo } f
 import { auth } from '../services/auth.js';
 import { showToast } from '../components/toast.js';
 import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
+import { archiveSemester, getArchivedSemesters, loadArchivedSemester } from '../services/semester.js';
 import { CONFIG } from '../config/config.js';
 
 export function initSettings() {
@@ -12,6 +13,7 @@ export function initSettings() {
     setValue('settingsName', user.name || '');
     setValue('settingsEmail', user.email || '');
     setValue('settingsSemester', user.semester || CONFIG.DEFAULT_SEMESTER);
+    renderArchivedSemesters();
     setValue('settingsStudyProgram', user.studyProgram || '');
     setValue('settingsUniversity', user.university || '');
     setValue('settingsTheme', user.theme || 'system');
@@ -126,6 +128,30 @@ export function initSettings() {
     await clearData();
     showToast('Data dihapus');
     setTimeout(() => location.reload(), 1000);
+  }
+
+  function renderArchivedSemesters() {
+    const el = document.getElementById('archivedSemesterList');
+    if (!el) return;
+    const archived = getArchivedSemesters();
+    if (archived.length === 0) { el.innerHTML = '<div style="font-size:13px;color:var(--on-surface-variant)">Belum ada arsip semester.</div>'; return; }
+    el.innerHTML = archived.map(s => {
+      const arch = loadArchivedSemester(s);
+      const count = (arch?.subjects?.length || 0) + (arch?.tasks?.length || 0);
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.75rem;background:var(--surface-container);border-radius:var(--radius-md);margin-bottom:0.4rem">
+        <div><span style="font-weight:600;font-size:14px">Semester ${s}</span><span style="font-size:12px;color:var(--on-surface-variant);margin-left:0.5rem">${count} item</span></div>
+        <button class="btn btn-ghost btn-sm load-archived" data-sem="${s}" style="font-size:12px">Lihat</button>
+      </div>`;
+    }).join('');
+    el.querySelectorAll('.load-archived').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sem = btn.dataset.sem;
+        const arch = loadArchivedSemester(sem);
+        if (!arch) { showToast('Data tidak ditemukan'); return; }
+        const text = `Semester ${sem}: ${arch.subjects?.length || 0} MK, ${arch.tasks?.length || 0} tugas, ${(arch.attendanceRecords||[]).length} presensi, ${(arch.notes||[]).length} catatan.`;
+        showToast(text, 4000);
+      });
+    });
   }
 
   function handleAvatarUpload() {

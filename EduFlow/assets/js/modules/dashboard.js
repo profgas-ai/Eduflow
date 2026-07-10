@@ -6,6 +6,8 @@ import { chartManager } from '../components/chart.js';
 import { showToast } from '../components/toast.js';
 import { renderSchedule, setupTimetable } from './timetable.js';
 import { setupGpaCalculator } from './gpa.js';
+import { getRecentActivities, pushActivity } from '../services/activity.js';
+import { archiveSemester, getArchivedSemesters } from '../services/semester.js';
 
 export function initDashboard() {
   const data = getData();
@@ -16,6 +18,7 @@ export function initDashboard() {
   renderMomentum(data);
   renderWeeklySummary(data);
   renderSchedule(data);
+  renderEnhancedStats(data);
   setupTimetable(data);
   renderUpcomingTasks(data);
   initCharts(data);
@@ -23,6 +26,8 @@ export function initDashboard() {
   setupSemesterSwitcher(data);
   renderPinnedNotes(data);
   renderWeeklyDeadline(data);
+  renderActivityFeed(data);
+  renderNextClass(data);
   setupClickableStats();
   setupQuickAttend(data);
   setupGpaCalculator(data);
@@ -258,24 +263,35 @@ async function initCharts(data) {
 
 function setupQuickAdd(data) {
   const fab = document.getElementById('fabBtn');
-  if (fab) {
+  const menu = document.getElementById('fabMenu');
+  if (fab && menu) {
     fab.addEventListener('click', () => {
-      const backdrop = document.getElementById('quickAddBackdrop');
-      if (backdrop) {
-        backdrop.classList.add('open');
-        const select = document.getElementById('qaSubject');
-        if (select) {
-          select.innerHTML = (data.subjects || []).map(s =>
-            `<option value="${s.id}">${escapeHtml(s.name)}</option>`
-          ).join('');
-        }
-      }
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    });
+    document.addEventListener('click', (e) => {
+      if (!fab.contains(e.target) && !menu.contains(e.target)) menu.style.display = 'none';
+    });
+    menu.querySelectorAll('.fab-menu-item').forEach(item => {
+      item.addEventListener('click', () => {
+        menu.style.display = 'none';
+        const action = item.dataset.action;
+        if (action === 'task') openQuickTask(data);
+        else if (action === 'subject') openQuickSubject(data);
+        else if (action === 'note') openQuickNote(data);
+      });
     });
   }
+}
 
+function openQuickTask(data) {
+  const backdrop = document.getElementById('quickAddBackdrop');
+  if (!backdrop) return;
+  backdrop.classList.add('open');
+  const select = document.getElementById('qaSubject');
+  if (select) select.innerHTML = (data.subjects || []).map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
   const saveBtn = document.getElementById('qaSaveBtn');
   if (saveBtn) {
-    saveBtn.addEventListener('click', async () => {
+    saveBtn.onclick = async () => {
       const title = document.getElementById('qaTitle')?.value?.trim();
       const due = document.getElementById('qaDue')?.value;
       const subjectId = document.getElementById('qaSubject')?.value;
@@ -291,10 +307,64 @@ function setupQuickAdd(data) {
       };
       data.tasks.push(newTask);
       await db.insert('tasks', newTask);
-      document.getElementById('quickAddBackdrop')?.classList.remove('open');
+      pushActivity('task_add', 'Menambah tugas', title);
+      backdrop.classList.remove('open');
       showToast('Tugas ditambahkan');
       renderUpcomingTasks(data);
-    });
+    };
+  }
+}
+
+function openQuickSubject(data) {
+  const backdrop = document.getElementById('qaSubjectBackdrop');
+  if (!backdrop) return;
+  document.getElementById('qaSubjectName').value = '';
+  backdrop.classList.add('open');
+  const saveBtn = document.getElementById('qaSubjectSaveBtn');
+  if (saveBtn) {
+    saveBtn.onclick = async () => {
+      const name = document.getElementById('qaSubjectName')?.value?.trim();
+      const sks = Number(document.getElementById('qaSubjectSks')?.value || 3);
+      const semester = Number(document.getElementById('qaSubjectSemester')?.value || 1);
+      if (!name) { showToast('Nama MK wajib diisi'); return; }
+      const newSubject = {
+        id: generateId(), name, code: '', lecturer: '', sks, semester, color: '#4f46e5',
+        lecturerEmail: '', lecturerPhone: '', room: '', linkLms: '', linkMeet: '', linkWa: '', notes: '',
+        day: '', startTime: '', endTime: '', category: '', icon: '', active: true,
+        totalSessions: 0, present: 0, currentMeeting: 0, totalMeetings: 16,
+        createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+      };
+      data.subjects.push(newSubject);
+      await db.insert('subjects', newSubject);
+      pushActivity('subject_add', 'Menambah MK', name);
+      backdrop.classList.remove('open');
+      showToast('MK ditambahkan');
+      renderStats(data);
+    };
+  }
+}
+
+function openQuickNote(data) {
+  const backdrop = document.getElementById('qaNoteBackdrop');
+  if (!backdrop) return;
+  document.getElementById('qaNoteTitle').value = '';
+  document.getElementById('qaNoteContent').value = '';
+  backdrop.classList.add('open');
+  const saveBtn = document.getElementById('qaNoteSaveBtn');
+  if (saveBtn) {
+    saveBtn.onclick = async () => {
+      const title = document.getElementById('qaNoteTitle')?.value?.trim();
+      const content = document.getElementById('qaNoteContent')?.value?.trim() || '';
+      if (!title) { showToast('Judul wajib diisi'); return; }
+      const now = new Date().toISOString();
+      data.notes = data.notes || [];
+      const newNote = { id: generateId(), subjectId: '', title, content, checklist: [], pinned: false, tags: [], createdAt: now, updatedAt: now };
+      data.notes.push(newNote);
+      await db.insert('notes', newNote);
+      pushActivity('note_add', 'Menambah catatan', title);
+      backdrop.classList.remove('open');
+      showToast('Catatan ditambahkan');
+    };
   }
 }
 
@@ -306,8 +376,14 @@ function setupSemesterSwitcher(data) {
   const current = data.user?.semester || data.settings?.semesterActive || 1;
   semesterSelect.value = current;
 
-  saveBtn.addEventListener('click', () => {
+  saveBtn.addEventListener('click', async () => {
     const semester = parseInt(semesterSelect.value);
+    const prev = data.user?.semester || data.settings?.semesterActive || 1;
+    if (semester !== prev) {
+      const { showDialog } = await import('../components/dialog.js');
+      const archive = await showDialog({ title: 'Arsip Semester', message: `Arsipkan data Semester ${prev} sebelum beralih?`, confirmText: 'Arsipkan', cancelText: 'Langsung Ganti' });
+      if (archive) archiveSemester(prev);
+    }
     data.user.semester = semester;
     data.settings = data.settings || {};
     data.settings.semesterActive = semester;
@@ -412,6 +488,123 @@ function setupQuickAttend(data) {
     renderQuickAttend();
     document.getElementById('quickAttendBackdrop')?.classList.add('open');
   });
+}
+
+function renderEnhancedStats(data) {
+  const el = document.getElementById('enhancedStats');
+  if (!el) return;
+  const subjects = data.subjects || [];
+  const tasks = data.tasks || [];
+  const attendance = data.attendanceRecords || [];
+
+  const subjectTaskCount = subjects.map(s => ({
+    name: s.name,
+    count: tasks.filter(t => t.subjectId === s.id).length,
+    color: s.color,
+  })).sort((a, b) => b.count - a.count);
+
+  const subjectAttendance = subjects.map(s => {
+    const recs = attendance.filter(a => a.subjectId === s.id);
+    const present = recs.filter(a => a.status === 'hadir').length;
+    return { name: s.name, pct: recs.length ? Math.round((present / recs.length) * 100) : 0, total: recs.length, color: s.color };
+  }).sort((a, b) => b.pct - a.pct);
+
+  const totalSks = subjects.reduce((a, s) => a + (s.sks || 0), 0);
+  let html = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem">
+    <div style="background:var(--surface-container);border-radius:var(--radius-md);padding:0.6rem 0.75rem;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--primary)">${totalSks}</div><div style="font-size:12px;color:var(--on-surface-variant)">Total SKS</div></div>
+    <div style="background:var(--surface-container);border-radius:var(--radius-md);padding:0.6rem 0.75rem;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--tertiary)">${subjects.length}</div><div style="font-size:12px;color:var(--on-surface-variant)">MK Aktif</div></div>
+  </div>`;
+
+  if (subjectTaskCount.length > 0) {
+    const top = subjectTaskCount[0];
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0.75rem;background:var(--surface-container);border-radius:var(--radius-md);margin-bottom:0.4rem">
+      <span style="font-size:13px">📊 MK dengan tugas terbanyak</span>
+      <span style="font-weight:600;font-size:14px">${escapeHtml(top.name)} (${top.count})</span>
+    </div>`;
+  }
+
+  if (subjectAttendance.length > 0) {
+    const best = subjectAttendance[0];
+    const worst = subjectAttendance[subjectAttendance.length - 1];
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0.75rem;background:var(--surface-container);border-radius:var(--radius-md);margin-bottom:0.4rem">
+      <span style="font-size:13px">✅ Kehadiran terbaik</span>
+      <span style="font-weight:600;font-size:14px">${escapeHtml(best.name)} (${best.pct}%)</span>
+    </div>`;
+    if (worst.total > 0 && worst.pct < 100) {
+      html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0.75rem;background:var(--surface-container);border-radius:var(--radius-md);margin-bottom:0.4rem">
+        <span style="font-size:13px">⚠️ Kehadiran perlu diperbaiki</span>
+        <span style="font-weight:600;font-size:14px">${escapeHtml(worst.name)} (${worst.pct}%)</span>
+      </div>`;
+    }
+  }
+  el.innerHTML = html;
+}
+
+function renderActivityFeed(data) {
+  const el = document.getElementById('activityFeed');
+  if (!el) return;
+  const activities = getRecentActivities(8);
+  if (activities.length === 0) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  const icons = { subject_add: '📚', subject_update: '✏️', subject_delete: '🗑️', task_add: '📝', task_update: '📋', task_delete: '🗑️', note_add: '📄', note_update: '📃', note_delete: '🗑️', attendance: '✅' };
+  el.innerHTML = activities.map(a => `
+    <div style="display:flex;align-items:center;gap:0.6rem;padding:0.45rem 0;border-bottom:1px solid var(--outline-variant);font-size:13px">
+      <span style="font-size:16px">${icons[a.type] || '📌'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.label}</div>
+        ${a.details ? `<div style="font-size:11px;color:var(--on-surface-variant)">${a.details}</div>` : ''}
+      </div>
+      <span style="font-size:11px;color:var(--on-surface-variant);white-space:nowrap">${timeAgo(a.timestamp)}</span>
+    </div>
+  `).join('');
+}
+
+function timeAgo(ts) {
+  const diff = Date.now() - new Date(ts).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'baru saja';
+  if (mins < 60) return `${mins}m`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}j`;
+  const days = Math.floor(hrs / 24);
+  return `${days}h`;
+}
+
+function renderNextClass(data) {
+  const el = document.getElementById('nextClassInfo');
+  if (!el) return;
+  const schedules = data.schedules || [];
+  const subjects = data.subjects || [];
+  const now = new Date();
+  const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const today = dayNames[now.getDay()];
+  const currentTime = now.getHours() * 60 + now.getMinutes();
+  const todayClasses = schedules.filter(s => s.day === today)
+    .map(s => {
+      const subj = subjects.find(x => x.id === s.subjectId);
+      const [h, m] = (s.startTime || '0:0').split(':').map(Number);
+      return { ...s, subjectName: subj?.name || 'MK', startMin: h * 60 + m, color: subj?.color || 'var(--primary)' };
+    })
+    .filter(s => !isNaN(s.startMin))
+    .sort((a, b) => a.startMin - b.startMin);
+  const next = todayClasses.find(s => s.startMin > currentTime);
+  if (!next) {
+    if (todayClasses.length > 0) { el.innerHTML = `<span style="font-size:13px;color:var(--on-surface-variant)">✅ Semua kelas hari ini selesai</span>`; }
+    else { el.innerHTML = `<span style="font-size:13px;color:var(--on-surface-variant)">📅 Tidak ada kelas hari ini</span>`; }
+    return;
+  }
+  const diffMin = next.startMin - currentTime;
+  const hrs = Math.floor(diffMin / 60);
+  const mins = diffMin % 60;
+  const countdown = hrs > 0 ? `${hrs}j ${mins}m` : `${mins}m`;
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;gap:0.6rem">
+      <span style="font-size:24px">⏰</span>
+      <div>
+        <div style="font-weight:600;font-size:14px">${escapeHtml(next.subjectName)}</div>
+        <div style="font-size:12px;color:var(--on-surface-variant)">${next.startTime} · ${next.room || '-'} · Mulai dalam ${countdown}</div>
+      </div>
+    </div>`;
 }
 
 function setupClickableStats() {

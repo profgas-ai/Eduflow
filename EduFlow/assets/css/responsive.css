@@ -284,6 +284,23 @@ h1.page-title {
   100% { opacity: 0.5; }
 }
 
+.card, .stat-card, .task-card, .note-mini-card, .deadline-item { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.card:hover, .stat-card:hover, .task-card:hover, .note-mini-card:hover, .deadline-item:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.btn { transition: transform 0.1s ease, box-shadow 0.15s ease, opacity 0.15s ease; }
+.btn:active { transform: scale(0.97); }
+.fab { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.fab:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(79,70,229,0.3); }
+.fab:active { transform: scale(0.95); }
+.fab-menu-item { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.fab-menu-item:hover { transform: translateX(-4px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.modal-backdrop { animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal { animation: slideUp 0.25s ease; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.gs-result:hover { background: var(--surface-container); }
+.gs-result { transition: background 0.1s ease; }
+
+
 .dialog {
   text-align: center;
 }

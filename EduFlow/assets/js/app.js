@@ -7,6 +7,7 @@ import { setupModalBackdropClose } from './components/modal.js';
 import { renderSidebar } from './components/sidebar.js';
 import { renderBottomNav, setActiveNav } from './components/navbar.js';
 import { updateNotificationBadge, setupNotificationPanel } from './components/notification-panel.js';
+import { setupGlobalSearch } from './components/global-search.js';
 
 (async function init() {
   try {
@@ -69,6 +70,7 @@ import { updateNotificationBadge, setupNotificationPanel } from './components/no
   applySavedTheme();
   updateNotificationBadge();
   setupNotificationPanel();
+  setupGlobalSearch();
 
   const loadingEl = document.getElementById('appLoading');
   if (loadingEl) {

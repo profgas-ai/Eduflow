@@ -5,6 +5,7 @@ import { createAttendanceCard } from '../components/card.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { showToast, showUndoToast } from '../components/toast.js';
 import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
+import { pushActivity } from '../services/activity.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { CONFIG } from '../config/config.js';
 import { chartManager } from '../components/chart.js';
@@ -95,6 +96,7 @@ export function initAttendance() {
   }
 
   async function markAttendance(id, status) {
+    pushActivity('attendance', `Presensi ${status}`, s.name);
     const s = data.subjects.find(x => x.id === id);
     if (!s) return;
     data.attendanceRecords = data.attendanceRecords || [];

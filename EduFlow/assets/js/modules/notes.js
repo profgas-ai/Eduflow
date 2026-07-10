@@ -4,6 +4,7 @@ import { escapeHtml, generateId, sanitizeInput, debounce } from '../utils/helper
 import { openModal, closeModal } from '../components/modal.js';
 import { showToast, showUndoToast } from '../components/toast.js';
 import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
+import { pushActivity } from '../services/activity.js';
 
 let undoSnapshot = null;
 import { openModal, closeModal } from '../components/modal.js';
@@ -155,6 +156,7 @@ export function initNotes() {
     undoSnapshot = n ? { ...n } : null;
     data.notes = (data.notes || []).filter(n => n.id !== id);
     db.delete('notes', { id });
+    pushActivity('note_delete', 'Menghapus catatan', undoSnapshot?.title || '');
     showUndoToast('Catatan dihapus', () => {
       if (undoSnapshot) {
         data.notes.push(undoSnapshot);
@@ -216,6 +218,7 @@ export function initNotes() {
         const updates = { title, content, tags, subjectId, updatedAt: now };
         Object.assign(note, updates);
         await db.update('notes', { id }, updates);
+        pushActivity('note_update', 'Mengedit catatan', title);
         showToast('Catatan diperbarui');
         hideBtnLoading(btn);
       }
@@ -228,6 +231,7 @@ export function initNotes() {
       };
       data.notes.push(newNote);
       await db.insert('notes', newNote);
+      pushActivity('note_add', 'Menambah catatan', title);
       showToast('Catatan ditambahkan');
       hideBtnLoading(btn);
     }

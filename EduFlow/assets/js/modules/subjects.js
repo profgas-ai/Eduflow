@@ -7,6 +7,7 @@ import { showToast, showUndoToast } from '../components/toast.js';
 import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
 import { required, maxLength, min, max, validateForm } from '../utils/validator.js';
 import { undoManager } from '../services/undo.js';
+import { pushActivity } from '../services/activity.js';
 import { CONFIG } from '../config/config.js';
 
 export function initSubjects() {
@@ -161,6 +162,7 @@ export function initSubjects() {
     data.attendanceRecords = (data.attendanceRecords || []).filter(a => a.subjectId !== id);
     data.notes = (data.notes || []).filter(n => n.subjectId !== id);
     persist();
+    pushActivity('subject_delete', 'Menghapus MK', s.name);
     showUndoToast('Mata kuliah dihapus', () => {
       data.subjects.push(...snapshot.subjects);
       data.tasks.push(...snapshot.tasks);
@@ -235,7 +237,8 @@ export function initSubjects() {
           if (hadSchedule) await db.delete('schedules', { subjectId: id });
         }
         await db.update('subjects', { id }, updates);
-        showToast('Mata kuliah diperbarui');
+        pushActivity('subject_update', 'Mengedit MK', name);
+      showToast('Mata kuliah diperbarui');
         hideBtnLoading(btn);
       }
     } else {
@@ -257,6 +260,7 @@ export function initSubjects() {
         await db.insert('schedules', newSchedule);
       }
       await db.insert('subjects', newSubject);
+      pushActivity('subject_add', 'Menambah MK', name);
       showToast('Mata kuliah ditambahkan');
       hideBtnLoading(btn);
       activeSemester = semester;

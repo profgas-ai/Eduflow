@@ -7,7 +7,7 @@ let syncCallback = null;
 function emptyData() {
   return {
     user: { name: '', email: '', semester: 1, studyProgram: '', university: '', avatar: '', theme: 'system', language: 'id', timezone: 'Asia/Jakarta', updatedAt: 0 },
-    subjects: [], tasks: [], schedules: [], attendanceRecords: [], notes: [], notifications: [], events: [], gradeRecords: [], files: [],
+    subjects: [], tasks: [], schedules: [], attendanceRecords: [], notes: [], notifications: [], events: [], gradeRecords: [], files: [], activities: [],
     settings: { semesterActive: 1, attendanceTarget: 75, reminderEnabled: true, reminderBeforeDeadline: 24, language: 'id', theme: 'system' },
   };
 }

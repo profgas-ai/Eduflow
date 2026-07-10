@@ -94,6 +94,13 @@
         </div>
       </div>
 
+      <div id="nextClassInfo" style="padding:0.75rem 1rem;background:var(--surface-container);border-radius:var(--radius-md);margin-bottom:1rem"></div>
+
+      <div id="activityFeed" style="margin-bottom:1rem">
+        <div class="section-head"><h2>Aktivitas Terbaru</h2></div>
+        <div style="background:var(--surface-container-lowest);border:1px solid var(--outline-variant);border-radius:var(--radius-lg);padding:0.5rem 0.75rem"></div>
+      </div>
+
       <div class="momentum-card">
         <div style="flex:1;">
           <h3>Academic Momentum</h3>
@@ -106,6 +113,8 @@
           </div>
         </div>
       </div>
+
+      <div id="enhancedStats" style="margin-bottom:1rem"></div>
 
       <div class="weekly-summary" id="weeklySummary" style="padding:0.75rem 1rem;background:var(--surface-container);border-radius:var(--radius-md);margin-bottom:1rem;font-size:14px;color:var(--on-surface-variant);line-height:1.5"></div>
 
@@ -154,9 +163,14 @@
       <div class="stack-gap" id="upcomingTasks"></div>
     </div>
 
-    <button class="fab" id="fabBtn" aria-label="Tambah tugas cepat">
+    <button class="fab" id="fabBtn" aria-label="Tambah cepat">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
     </button>
+    <div class="fab-menu" id="fabMenu" style="position:fixed;bottom:8rem;right:1.25rem;display:none;flex-direction:column;gap:0.4rem;z-index:98">
+      <button class="fab-menu-item" data-action="task" style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;background:var(--surface-container-lowest);border:1px solid var(--outline-variant);border-radius:var(--radius-full);box-shadow:0 2px 12px rgba(0,0,0,0.12);cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">📝 Tugas</button>
+      <button class="fab-menu-item" data-action="subject" style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;background:var(--surface-container-lowest);border:1px solid var(--outline-variant);border-radius:var(--radius-full);box-shadow:0 2px 12px rgba(0,0,0,0.12);cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">📚 Mata Kuliah</button>
+      <button class="fab-menu-item" data-action="note" style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;background:var(--surface-container-lowest);border:1px solid var(--outline-variant);border-radius:var(--radius-full);box-shadow:0 2px 12px rgba(0,0,0,0.12);cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">📄 Catatan</button>
+    </div>
 
     <button class="ipk-fab" id="ipkFabBtn" aria-label="Kalkulator IPK" title="Kalkulator IPK" style="position:fixed;bottom:5rem;right:1.25rem;width:44px;height:44px;border-radius:50%;background:var(--tertiary);color:#fff;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.2);cursor:pointer;font-weight:700;font-size:14px;z-index:99;">Σ</button>
 
@@ -207,6 +221,31 @@
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="document.getElementById('quickAddBackdrop').classList.remove('open')">Batal</button>
       <button class="btn btn-primary" id="qaSaveBtn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="qaSubjectBackdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h3>Tambah Mata Kuliah Cepat</h3>
+    <div class="field"><label>Nama MK</label><input type="text" id="qaSubjectName" placeholder="cth: Aljabar Linier" /></div>
+    <div class="field"><label>SKS</label><select id="qaSubjectSks"><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="6">6</option></select></div>
+    <div class="field"><label>Semester</label><select id="qaSubjectSemester"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('qaSubjectBackdrop').classList.remove('open')">Batal</button>
+      <button class="btn btn-primary" id="qaSubjectSaveBtn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="qaNoteBackdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h3>Catatan Cepat</h3>
+    <div class="field"><label>Judul</label><input type="text" id="qaNoteTitle" placeholder="Judul catatan" /></div>
+    <div class="field"><label>Isi</label><textarea id="qaNoteContent" rows="3" placeholder="Tulis catatan..." style="resize:vertical"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('qaNoteBackdrop').classList.remove('open')">Batal</button>
+      <button class="btn btn-primary" id="qaNoteSaveBtn">Simpan</button>
     </div>
   </div>
 </div>
