@@ -8,12 +8,6 @@ export function setupGpaCalculator(data) {
 
   function loadRowsFromData() {
     data.gradeRecords = data.gradeRecords || [];
-    if (data.gradeRecords.length === 0) {
-      (data.subjects || []).forEach(s => {
-        data.gradeRecords.push({ name: s.name, sks: s.sks, grade: 'B+' });
-      });
-      if ((data.subjects || []).length > 0) persist();
-    }
   }
 
   function calcGpa() {

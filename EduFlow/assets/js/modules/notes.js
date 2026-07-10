@@ -41,6 +41,9 @@ export function initNotes() {
     container.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
         activeSubjectId = tab.dataset.id;
+        searchTerm = '';
+        const inp = document.getElementById('notesSearch');
+        if (inp) inp.value = '';
         render();
       });
     });

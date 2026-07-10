@@ -280,6 +280,7 @@ function setupQuickAdd(data) {
       const due = document.getElementById('qaDue')?.value;
       const subjectId = document.getElementById('qaSubject')?.value;
       if (!title || !due) { showToast('Lengkapi judul dan tenggat'); return; }
+      if (!subjectId) { showToast('Pilih mata kuliah'); return; }
       data.tasks = data.tasks || [];
       const newTask = {
         id: generateId(), subjectId, title, description: '',
@@ -292,7 +293,7 @@ function setupQuickAdd(data) {
       await db.insert('tasks', newTask);
       document.getElementById('quickAddBackdrop')?.classList.remove('open');
       showToast('Tugas ditambahkan');
-      setTimeout(() => location.reload(), 500);
+      renderUpcomingTasks(data);
     });
   }
 }

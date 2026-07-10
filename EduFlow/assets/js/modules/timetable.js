@@ -20,7 +20,7 @@ export function renderSchedule(data) {
 
   function toMin(t) { if (!t) return 0; const [h,m] = t.split(':').map(Number); return h*60+(m||0); }
 
-  el.innerHTML = todaySchedule.slice(0, 4).map(s => {
+  el.innerHTML = todaySchedule.map(s => {
     const subj = subjects.find(x => x.id === s.subjectId);
     const isPast = s.endTime && toMin(s.endTime) <= currentMinutes;
     const alreadyAttended = subj ? records.some(r => r.subjectId === subj.id && r.date.startsWith(todayDate)) : false;

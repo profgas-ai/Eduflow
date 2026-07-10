@@ -40,7 +40,7 @@ export function initSettings() {
   function saveProfile() {
     const name = document.getElementById('settingsName')?.value?.trim();
     const email = document.getElementById('settingsEmail')?.value?.trim();
-    const semester = Number(document.getElementById('settingsSemester')?.value) || 1;
+    const semester = Math.max(1, Number(document.getElementById('settingsSemester')?.value) || 1);
     const studyProgram = document.getElementById('settingsStudyProgram')?.value?.trim();
     const university = document.getElementById('settingsUniversity')?.value?.trim();
 
@@ -77,23 +77,35 @@ export function initSettings() {
     showToast('Data berhasil diexport');
   }
 
-  function handleImport() {
+  async function handleImport() {
     const input = document.getElementById('importFile');
     if (!input || !input.files?.[0]) {
       showToast('Pilih file terlebih dahulu');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const result = await importData(e.target.result);
-      if (result) {
-        showToast('Data berhasil diimport');
-        setTimeout(() => location.reload(), 1000);
-      } else {
-        showToast('Format file tidak valid');
-      }
-    };
-    reader.readAsText(input.files[0]);
+    const text = await input.files[0].text();
+    let preview;
+    try {
+      const d = JSON.parse(text);
+      if (!d.user || !Array.isArray(d.subjects)) throw new Error();
+      preview = `${d.subjects.length} MK, ${(d.tasks||[]).length} tugas, ${(d.notes||[]).length} catatan`;
+    } catch {
+      showToast('Format file tidak valid'); return;
+    }
+    const { showDialog } = await import('../components/dialog.js');
+    const confirmed = await showDialog({
+      title: 'Import Data',
+      message: `Data ini berisi ${preview}. Lanjutkan? Data lama akan ditimpa.`,
+      confirmText: 'Import',
+    });
+    if (!confirmed) return;
+    const result = await importData(text);
+    if (result) {
+      showToast('Data berhasil diimport');
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      showToast('Format file tidak valid');
+    }
   }
 
   async function handleClearData() {

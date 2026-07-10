@@ -96,6 +96,10 @@ export function initAttendance() {
     const s = data.subjects.find(x => x.id === id);
     if (!s) return;
     data.attendanceRecords = data.attendanceRecords || [];
+    const today = new Date().toISOString().split('T')[0];
+    if (data.attendanceRecords.some(r => r.subjectId === id && r.date.startsWith(today))) {
+      showToast('Hari ini sudah dicatat'); return;
+    }
     const meeting = data.attendanceRecords.filter(r => r.subjectId === id).length + 1;
     const record = {
       id: generateId(), subjectId: id, meeting,

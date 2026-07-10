@@ -7,11 +7,12 @@ import { showToast } from '../components/toast.js';
 
 export function initTasks() {
   const data = getData();
+  const saved = JSON.parse(localStorage.getItem('eduflow_task_filter') || '{}');
   let searchTerm = '';
-  let filterPriority = '';
-  let filterStatus = '';
-  let filterCategory = '';
-  let sortBy = 'deadline';
+  let filterPriority = saved.filterPriority || '';
+  let filterStatus = saved.filterStatus || '';
+  let filterCategory = saved.filterCategory || '';
+  let sortBy = saved.sortBy || 'deadline';
 
   function renderSubjectOptions(selectId, selectedId = '') {
     const select = document.getElementById(selectId);
@@ -232,6 +233,11 @@ export function initTasks() {
     const progress = checklist.length > 0 ? Math.round((doneCount / checklist.length) * 100) : Number(document.getElementById('tProgress')?.value) || 0;
 
     if (!title || !due) { showToast('Lengkapi judul dan tenggat'); return; }
+    if (new Date(due) < Date.now()) {
+      const { showDialog } = await import('../components/dialog.js');
+      const ok = await showDialog({ title: 'Deadline Lewat', message: 'Tenggat sudah lewat. Tetap simpan?', confirmText: 'Simpan', danger: true });
+      if (!ok) return;
+    }
 
     if (id) {
       const t = data.tasks.find(x => x.id === id);
@@ -295,6 +301,7 @@ export function initTasks() {
         if (key === 'priority') filterPriority = value;
         if (key === 'status') filterStatus = value;
         if (key === 'category') filterCategory = value;
+        localStorage.setItem('eduflow_task_filter', JSON.stringify({ filterPriority, filterStatus, filterCategory, sortBy }));
         render();
       });
     });
@@ -302,6 +309,7 @@ export function initTasks() {
     document.querySelectorAll('.sort-select').forEach(sel => {
       sel.addEventListener('change', (e) => {
         sortBy = e.currentTarget.value;
+        localStorage.setItem('eduflow_task_filter', JSON.stringify({ filterPriority, filterStatus, filterCategory, sortBy }));
         render();
       });
     });
