@@ -4,6 +4,7 @@ import { escapeHtml, getGreeting, getDayName, generateId } from '../utils/helper
 import { formatDate } from '../utils/formatter.js';
 import { chartManager } from '../components/chart.js';
 import { showToast } from '../components/toast.js';
+import { showSkeleton, hideSkeleton } from '../components/loading.js';
 import { renderSchedule, setupTimetable } from './timetable.js';
 import { setupGpaCalculator } from './gpa.js';
 import { getRecentActivities, pushActivity } from '../services/activity.js';
@@ -11,6 +12,11 @@ import { archiveSemester, getArchivedSemesters } from '../services/semester.js';
 
 export function initDashboard() {
   const data = getData();
+
+  ['upcomingTasks', 'weeklyDeadlineList', 'classList', 'dashboardNotesList', 'activityFeed', 'enhancedStats'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) showSkeleton(el, 3, 'row');
+  });
 
   renderGreeting(data.user);
   renderClock();
@@ -32,6 +38,12 @@ export function initDashboard() {
   setupQuickAttend(data);
   setupGpaCalculator(data);
   showOnboarding(data);
+  requestAnimationFrame(() => {
+    ['upcomingTasks', 'weeklyDeadlineList', 'classList', 'dashboardNotesList', 'activityFeed', 'enhancedStats'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) hideSkeleton(el);
+    });
+  });
 }
 
 function renderGreeting(user) {

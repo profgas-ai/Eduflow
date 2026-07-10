@@ -1,4 +1,4 @@
-import { loadData, setStorageSuffix, getData } from './services/storage.js';
+import { loadData, setStorageSuffix } from './services/storage.js';
 import { auth } from './services/auth.js';
 import { db } from './services/database.js';
 import { notifier } from './services/notification.js';
@@ -8,6 +8,7 @@ import { renderSidebar } from './components/sidebar.js';
 import { renderBottomNav, setActiveNav } from './components/navbar.js';
 import { updateNotificationBadge, setupNotificationPanel } from './components/notification-panel.js';
 import { setupGlobalSearch } from './components/global-search.js';
+import { applySavedTheme } from './components/theme.js';
 
 (async function init() {
   try {
@@ -84,15 +85,3 @@ import { setupGlobalSearch } from './components/global-search.js';
   }
   } catch (e) { console.error('App init failed:', e); }
 })();
-
-function applySavedTheme() {
-  const data = getData();
-  const theme = data.user?.theme || data.settings?.theme || 'system';
-  if (theme === 'system') {
-    document.documentElement.setAttribute('data-theme',
-      window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    );
-  } else {
-    document.documentElement.setAttribute('data-theme', theme);
-  }
-}

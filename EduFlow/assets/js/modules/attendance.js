@@ -4,9 +4,8 @@ import { escapeHtml, generateId } from '../utils/helper.js';
 import { createAttendanceCard } from '../components/card.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { showToast, showUndoToast } from '../components/toast.js';
-import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
+import { showBtnLoading, hideBtnLoading, showSkeleton, hideSkeleton } from '../components/loading.js';
 import { pushActivity } from '../services/activity.js';
-import { openModal, closeModal } from '../components/modal.js';
 import { CONFIG } from '../config/config.js';
 import { chartManager } from '../components/chart.js';
 import { formatDate as fmtDate } from '../utils/formatter.js';
@@ -51,6 +50,7 @@ export function initAttendance() {
 
     const listEl = document.getElementById('attendanceList');
     if (!listEl) return;
+    showSkeleton(listEl, 3, 'card');
 
     if (subjects.length === 0) {
       listEl.innerHTML = '<div class="empty-state">Belum ada mata kuliah. Tambahkan di halaman Mata Kuliah.</div>';
@@ -62,6 +62,7 @@ export function initAttendance() {
       return card.replace('</div>', '<button class="btn btn-ghost btn-sm btn-history" data-id="' + s.id + '" style="margin-top:0.5rem;width:100%;">📋 Riwayat Presensi</button></div>');
     }).join('');
     bindAttendanceEvents();
+    requestAnimationFrame(() => hideSkeleton(listEl));
 
     const absent = totalSessions - totalPresent;
     if (document.getElementById('attendanceChart')) {

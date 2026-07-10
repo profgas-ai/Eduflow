@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduFlow - 404 Halaman Tidak Ditemukan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<style>
+  .error-page { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:2rem; text-align:center; }
+  .error-page .error-code { font-size:6rem; font-weight:800; color:var(--primary); line-height:1; margin-bottom:0.5rem; }
+  .error-page .error-title { font-size:1.5rem; font-weight:600; margin-bottom:0.5rem; color:var(--on-surface); }
+  .error-page .error-desc { color:var(--on-surface-variant); margin-bottom:2rem; max-width:400px; }
+  .error-page .error-illustration { margin-bottom:2rem; }
+  .error-page .error-illustration svg { width:160px; height:160px; color:var(--primary-container); }
+  .error-actions { display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+<div class="error-page">
+  <div>
+    <div class="error-illustration">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:160px;height:160px;color:var(--primary-container);">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4M12 16h.01" stroke-width="2" stroke="currentColor"/>
+      </svg>
+    </div>
+    <div class="error-code">404</div>
+    <div class="error-title">Halaman Tidak Ditemukan</div>
+    <p class="error-desc">Halaman yang Anda cari mungkin telah dipindahkan, dihapus, atau tidak tersedia.</p>
+    <div class="error-actions">
+      <a href="index.html" class="btn btn-primary">Kembali ke Beranda</a>
+      <a href="javascript:history.back()" class="btn btn-outline">Kembali</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

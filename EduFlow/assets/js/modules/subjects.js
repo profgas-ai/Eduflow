@@ -4,7 +4,7 @@ import { escapeHtml, generateId, sanitizeInput } from '../utils/helper.js';
 import { createSubjectCard } from '../components/card.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { showToast, showUndoToast } from '../components/toast.js';
-import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
+import { showBtnLoading, hideBtnLoading, showSkeleton, hideSkeleton } from '../components/loading.js';
 import { required, maxLength, min, max, validateForm } from '../utils/validator.js';
 import { undoManager } from '../services/undo.js';
 import { pushActivity } from '../services/activity.js';
@@ -98,9 +98,12 @@ export function initSubjects() {
   }
 
   function render() {
+    const grid = document.getElementById('subjectGrid');
+    if (grid) showSkeleton(grid, 4, 'card');
     renderTabs();
     renderStats();
     renderGrid();
+    if (grid) requestAnimationFrame(() => hideSkeleton(grid));
   }
 
   function openAddModal() {

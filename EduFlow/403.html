@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduFlow - 403 Akses Ditolak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<style>
+  .error-page { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:2rem; text-align:center; }
+  .error-page .error-code { font-size:6rem; font-weight:800; color:var(--error); line-height:1; margin-bottom:0.5rem; }
+  .error-page .error-title { font-size:1.5rem; font-weight:600; margin-bottom:0.5rem; color:var(--on-surface); }
+  .error-page .error-desc { color:var(--on-surface-variant); margin-bottom:2rem; max-width:400px; }
+  .error-page .error-illustration { margin-bottom:2rem; }
+  .error-actions { display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+<div class="error-page">
+  <div>
+    <div class="error-illustration">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:160px;height:160px;color:var(--error-container);">
+        <rect x="3" y="11" width="18" height="11" rx="2" stroke-width="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-width="2" stroke="currentColor"/>
+      </svg>
+    </div>
+    <div class="error-code">403</div>
+    <div class="error-title">Akses Ditolak</div>
+    <p class="error-desc">Anda tidak memiliki izin untuk mengakses halaman ini. Silakan login dengan akun yang sesuai.</p>
+    <div class="error-actions">
+      <a href="login.html" class="btn btn-primary">Login</a>
+      <a href="index.html" class="btn btn-outline">Beranda</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

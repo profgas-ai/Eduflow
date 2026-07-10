@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduFlow - 500 Server Error</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<style>
+  .error-page { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:2rem; text-align:center; }
+  .error-page .error-code { font-size:6rem; font-weight:800; color:var(--error); line-height:1; margin-bottom:0.5rem; }
+  .error-page .error-title { font-size:1.5rem; font-weight:600; margin-bottom:0.5rem; color:var(--on-surface); }
+  .error-page .error-desc { color:var(--on-surface-variant); margin-bottom:2rem; max-width:400px; }
+  .error-page .error-illustration { margin-bottom:2rem; }
+  .error-actions { display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+<div class="error-page">
+  <div>
+    <div class="error-illustration">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="width:160px;height:160px;color:var(--error-container);">
+        <path d="M12 9v4M12 17h.01" stroke-width="2" stroke="currentColor"/>
+        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke-width="2"/>
+      </svg>
+    </div>
+    <div class="error-code">500</div>
+    <div class="error-title">Terjadi Kesalahan Server</div>
+    <p class="error-desc">Maaf, terjadi kesalahan pada server. Silakan coba lagi dalam beberapa saat.</p>
+    <div class="error-actions">
+      <a href="index.html" class="btn btn-primary">Kembali ke Beranda</a>
+      <a href="javascript:location.reload()" class="btn btn-outline">Coba Lagi</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

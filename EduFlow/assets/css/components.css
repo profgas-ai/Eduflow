@@ -253,8 +253,29 @@
 .empty-state {
   text-align: center;
   color: var(--on-surface-variant);
-  padding: 2rem 1rem;
+  padding: 2.5rem 1rem;
   font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.empty-state svg.empty-illustration {
+  width: 80px;
+  height: 80px;
+  color: var(--outline-variant);
+  margin-bottom: 0.5rem;
+}
+
+.empty-state .empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.empty-state .empty-action {
+  margin-top: 0.5rem;
 }
 
 .empty-icon {

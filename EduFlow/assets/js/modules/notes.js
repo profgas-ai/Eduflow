@@ -3,11 +3,10 @@ import { db } from '../services/database.js';
 import { escapeHtml, generateId, sanitizeInput, debounce } from '../utils/helper.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { showToast, showUndoToast } from '../components/toast.js';
-import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
+import { showBtnLoading, hideBtnLoading, showSkeleton, hideSkeleton } from '../components/loading.js';
 import { pushActivity } from '../services/activity.js';
 
 let undoSnapshot = null;
-import { openModal, closeModal } from '../components/modal.js';
 
 export function initNotes() {
   const data = getData();
@@ -56,6 +55,7 @@ export function initNotes() {
   function renderNotes() {
     const container = document.getElementById('notesList');
     if (!container) return;
+    showSkeleton(container, 3, 'card');
     const notes = getFilteredNotes();
 
     if (notes.length === 0) {
@@ -84,6 +84,7 @@ export function initNotes() {
     `).join('');
 
     bindNoteEvents();
+    requestAnimationFrame(() => hideSkeleton(container));
   }
 
   function exportNote(id) {

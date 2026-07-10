@@ -4,7 +4,7 @@ import { escapeHtml, generateId, sanitizeInput, debounce } from '../utils/helper
 import { createTaskCard } from '../components/card.js';
 import { openModal, closeModal } from '../components/modal.js';
 import { showToast, showUndoToast } from '../components/toast.js';
-import { showBtnLoading, hideBtnLoading } from '../components/loading.js';
+import { showBtnLoading, hideBtnLoading, showSkeleton, hideSkeleton } from '../components/loading.js';
 import { pushActivity } from '../services/activity.js';
 
 let undoSnapshot = null;
@@ -28,6 +28,9 @@ export function initTasks() {
   }
 
   function render() {
+    const pendingEl = document.getElementById('pendingList');
+    const completedEl = document.getElementById('completedList');
+    if (pendingEl) showSkeleton(pendingEl, 3, 'card');
     const tasks = data.tasks || [];
     const subjects = data.subjects || [];
 
@@ -77,6 +80,8 @@ export function initTasks() {
     }
 
     bindTaskEvents();
+    const completedEl2 = document.getElementById('completedList');
+    if (pendingEl) requestAnimationFrame(() => hideSkeleton(pendingEl));
   }
 
   async function toggleSubtask(taskId, idx) {
